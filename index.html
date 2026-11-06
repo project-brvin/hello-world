@@ -480,18 +480,18 @@
       function demoReply(userText) {
         const t = userText.toLowerCase();
         if (t.includes('hello') || t.includes('hi ') || t === 'hi' || t.includes('hey')) {
-          return 'Hello! 👋\\n\\nYou’re chatting inside a working ChatGPT-inspired interface. Try the sidebar, start a new conversation, switch themes, or send another message.';
+          return 'Hello! 👋\n\nYou’re chatting inside a working ChatGPT-inspired interface. Try the sidebar, start a new conversation, switch themes, or send another message.';
         }
         if (t.includes('plan') || t.includes('week') || t.includes('schedule')) {
-          return 'Here’s a simple way to get started:\\n\\n1. Pick your three most important outcomes.\\n2. Block focused time for the hardest task first.\\n3. Group small errands into one slot.\\n4. Leave some breathing room for surprises.\\n\\nTell me your priorities and I can help shape a more detailed example. (This demo response is local, not AI-generated.)';
+          return 'Here’s a simple way to get started:\n\n1. Pick your three most important outcomes.\n2. Block focused time for the hardest task first.\n3. Group small errands into one slot.\n4. Leave some breathing room for surprises.\n\nTell me your priorities and I can help shape a more detailed example. (This demo response is local, not AI-generated.)';
         }
         if (t.includes('write') || t.includes('draft') || t.includes('message')) {
-          return 'Absolutely — a useful writing brief includes the audience, the main point, and the tone you want.\\n\\nShare those details and I can help you structure a draft. In this preview, replies are fixed demo examples rather than responses from an AI model.';
+          return 'Absolutely — a useful writing brief includes the audience, the main point, and the tone you want.\n\nShare those details and I can help you structure a draft. In this preview, replies are fixed demo examples rather than responses from an AI model.';
         }
         if (t.includes('explain') || t.includes('learn') || t.includes('what is')) {
-          return 'A good explanation starts with the core idea, then adds a simple example, and finally covers the details.\\n\\nThis interface is only a front-end demonstration: it does not send your message to an AI service. Connect a secure backend to add real model responses.';
+          return 'A good explanation starts with the core idea, then adds a simple example, and finally covers the details.\n\nThis interface is only a front-end demonstration: it does not send your message to an AI service. Connect a secure backend to add real model responses.';
         }
-        return 'Thanks for trying the demo. Your message was added to this conversation and saved in this browser.\\n\\nThis is a front-end-only preview, so I’m not connected to an AI model yet. To make it truly conversational, connect a server-side API endpoint and keep any API key on the server — never in browser JavaScript.';
+        return 'Thanks for trying the demo. Your message was added to this conversation and saved in this browser.\n\nThis is a front-end-only preview, so I’m not connected to an AI model yet. To make it truly conversational, connect a server-side API endpoint and keep any API key on the server — never in browser JavaScript.';
       }
       function addMessage(text) {
         const clean = text.trim();
