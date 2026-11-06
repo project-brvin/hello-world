@@ -42,6 +42,7 @@ test("static assets are served with security headers", async () => {
   }));
   assert.equal(await response.text(), "site");
   assert.match(response.headers.get("content-security-policy"), /frame-ancestors 'none'/);
+  assert.match(response.headers.get("content-security-policy"), /connect-src 'self' wss:/);
   assert.match(response.headers.get("permissions-policy"), /microphone=\(self\)/);
 });
 

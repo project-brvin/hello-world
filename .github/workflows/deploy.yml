@@ -103,7 +103,11 @@ jobs:
             }
             console.log(JSON.stringify({ smoke_test: "ai-status", providers: value.providers.map((provider) => provider.id), ready: value.ready, voice: value.voice.persistentSession }));
           ' "$status"
-          headers="$(curl --fail --silent --show-error --head https://hello-world.projectbrvin.workers.dev/)"
-          grep -Eiq '^x-content-type-options: nosniff' <<< "$headers"
-          grep -Eiq '^content-security-policy:' <<< "$headers"
-          echo "Homepage security-header smoke test passed."
+          headers="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 -D - -o /dev/null https://hello-world.projectbrvin.workers.dev/)"
+          node --input-type=module -e '
+            const headers = process.argv[1].toLowerCase();
+            if (!/^x-content-type-options:\s*nosniff\s*$/m.test(headers)) throw new Error("X-Content-Type-Options header missing");
+            if (!/^content-security-policy:\s*.+$/m.test(headers)) throw new Error("Content-Security-Policy header missing");
+            if (!/^content-security-policy:.*connect-src[^\r\n]*wss:/m.test(headers)) throw new Error("CSP does not allow same-origin secure WebSockets");
+            console.log("Homepage security headers and WebSocket CSP passed.");
+          ' "$headers"
