@@ -7,6 +7,7 @@
 - Keep production deployment in a separate protected GitHub environment. Configure required reviewers and deployment branch restrictions in repository settings.
 - Require pull requests and passing validation before changes reach main. Disable force pushes and branch deletion.
 - The public chat and summary APIs validate browser origins, cap request size/history/output, use a per-IP Cloudflare rate limiter, and log no prompt text or provider credentials.
+- Live Durable Object WebSockets require a same-origin upgrade, use a separate per-IP reconnect limiter, validate event types and payload sizes, and persist only completed text/control events (not raw audio chunks). D1 memory is limited to compact summaries. Session and memory IDs are opaque UUID capability identifiers, not full account authentication.
 - Voice input and output use browser/device speech APIs. Users should understand the browser/provider's own speech data handling and avoid dictating secrets.
 - Treat issue text and repository content as untrusted input. Do not expose GitHub or Cloudflare control-plane tools to the public chat API.
 - Any future AI coding agent must run separately with minimal permissions, short-lived identity, path allowlists, draft-PR-only output, and human approval before merge/deploy.
