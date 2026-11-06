@@ -65,3 +65,8 @@ test("long-term memory is loaded and persisted through the same-origin D1 API", 
   assert.match(html, /persistLongTermMemory/);
   assert.match(html, /longTermMemory/);
 });
+
+test("static asset requests run through Worker middleware so security headers are applied", () => {
+  const config = JSON.parse(readFileSync(new URL("../wrangler.jsonc", import.meta.url), "utf8"));
+  assert.equal(config.assets.run_worker_first, true);
+});
