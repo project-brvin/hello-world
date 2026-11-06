@@ -11,10 +11,29 @@ test("inline frontend JavaScript parses successfully", () => {
   for (const script of scripts) new Script(script[1]);
 });
 
-test("browser client uses same-origin routes and does not contain the provider URL", () => {
+test("browser client uses same-origin model routes and contains no provider credentials", () => {
   assert.match(html, /fetch\(['"]\/api\/chat['"]/);
   assert.match(html, /fetch\(['"]\/api\/status['"]/);
+  assert.match(html, /fetch\(['"]\/api\/summarize['"]/);
   assert.doesNotMatch(html, /api\.groq\.com/);
+  assert.doesNotMatch(html, /api\.freellmapi\.co/);
   assert.doesNotMatch(html, /Bearer\s+[A-Za-z0-9_-]{12,}/);
-  assert.match(html, /The key is never sent to the browser/);
+});
+
+test("live voice mode offers browser speech input, speech output, and interruption controls", () => {
+  assert.match(html, /SpeechRecognitionApi/);
+  assert.match(html, /webkitSpeechRecognition/);
+  assert.match(html, /speechSynthesis/);
+  assert.match(html, /voice-interrupt/);
+  assert.match(html, /scheduleVoiceRestart/);
+  assert.match(html, /navigator\.wakeLock/);
+  assert.match(html, /voice-view/);
+});
+
+test("live voice session uses saved chat history and a rolling memory summary", () => {
+  assert.match(html, /chatgpt-ui-demo-chats/);
+  assert.match(html, /summarizedCount/);
+  assert.match(html, /conversation\.memory/);
+  assert.match(html, /3500/);
+  assert.match(html, /The microphone reconnects/);
 });

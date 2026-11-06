@@ -79,14 +79,21 @@ jobs:
           status="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 https://hello-world.projectbrvin.workers.dev/api/status)"
           node --input-type=module -e '
             const value = JSON.parse(process.argv[1]);
-            if (value.provider !== "Groq" || value.model !== "openai/gpt-oss-20b" ||
-                typeof value.configured !== "boolean" || typeof value.ready !== "boolean") {
-              throw new Error("AI status contract failed");
+            if (typeof value.provider !== "string" || typeof value.model !== "string" ||
+                typeof value.configured !== "boolean" || typeof value.ready !== "boolean" ||
+                !Array.isArray(value.providers) || !value.voice ||
+                value.voice.input !== "browser-speech-recognition" ||
+                value.voice.output !== "browser-speech-synthesis") {
+              throw new Error("AI and voice status contract failed");
+            }
+            if (value.providers.some((provider) => !["Groq", "FreeLLMAPI"].includes(provider.id)) ||
+                value.providers.some((provider) => /key|secret|token/i.test(JSON.stringify(provider)))) {
+              throw new Error("AI status returned an unexpected provider or sensitive field");
             }
             if (Object.keys(value).some((key) => /key|secret|token/i.test(key))) {
               throw new Error("AI status leaked a sensitive field");
             }
-            console.log(JSON.stringify({ smoke_test: "ai-status", provider: value.provider, model: value.model, ready: value.ready }));
+            console.log(JSON.stringify({ smoke_test: "ai-status", providers: value.providers.map((provider) => provider.id), ready: value.ready, voice: value.voice.persistentSession }));
           ' "$status"
           headers="$(curl --fail --silent --show-error --head https://hello-world.projectbrvin.workers.dev/)"
           printf '%s\n' "$headers" | grep -Eiq '^x-content-type-options: nosniff'
