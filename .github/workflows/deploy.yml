@@ -106,8 +106,8 @@ jobs:
           headers="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 -D - -o /dev/null https://hello-world.projectbrvin.workers.dev/)"
           node --input-type=module -e '
             const headers = process.argv[1].toLowerCase();
-            if (!/^x-content-type-options:\\s*nosniff\\s*$/m.test(headers)) throw new Error("X-Content-Type-Options header missing");
-            if (!/^content-security-policy:\\s*.+$/m.test(headers)) throw new Error("Content-Security-Policy header missing");
-            if (!/^content-security-policy:.*connect-src[^\\r\\n]*wss:/m.test(headers)) throw new Error("CSP does not allow same-origin secure WebSockets");
+            if (!/^x-content-type-options:\s*nosniff\s*$/m.test(headers)) throw new Error("X-Content-Type-Options header missing");
+            if (!/^content-security-policy:\s*.+$/m.test(headers)) throw new Error("Content-Security-Policy header missing");
+            if (!/^content-security-policy:.*connect-src[^\r\n]*wss:/m.test(headers)) throw new Error("CSP does not allow same-origin secure WebSockets");
             console.log("Homepage security headers and WebSocket CSP passed.");
           ' "$headers"
