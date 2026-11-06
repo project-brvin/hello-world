@@ -33,10 +33,10 @@ Store `GROQ_API_KEY` as a Cloudflare Worker Secret in Workers & Pages → hello-
 
 ### FreeLLMAPI primary provider
 
-FreeLLMAPI is a self-hosted Node/Docker gateway. The official public container image is `ghcr.io/tashfeenahmed/freellmapi:latest`. Follow `infra/railway/README.md` to deploy it through the Railway browser dashboard with a persistent volume at `/app/server/data`.
+FreeLLMAPI is a self-hosted Node/Docker gateway. The official public container image is `ghcr.io/tashfeenahmed/freellmapi:v0.16.20`. Follow `infra/railway/README.md` to deploy it through the Railway browser dashboard with a persistent volume at `/app/server/data`.
 
 After deployment:
-- Set `FREELLMAPI_BASE_URL` as a Cloudflare Worker text variable, using the Railway HTTPS origin with `/v1` appended.
+- Set `FREELLMAPI_BASE_URL` as a Cloudflare Worker text variable, using the Railway HTTPS origin with `/v1` appended. See `infra/railway/README.md` for the exact browser steps.
 - Set its unified API key as Cloudflare Worker Secret `FREELLMAPI_API_KEY`.
 - Keep `GROQ_API_KEY` as the fallback secret.
 
