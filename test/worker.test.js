@@ -70,7 +70,9 @@ test("model status reports providers and voice capabilities without exposing cre
       input: "browser-speech-recognition",
       output: "browser-speech-synthesis",
       persistentSession: true
-    }
+    },
+    sessionOrchestrator: false,
+    durableMemory: false
   });
 
   const ready = await worker.fetch(request("/api/status"), env());
@@ -292,4 +294,86 @@ test("chat endpoint maps provider rate limiting to a safe HTTP 429 response", as
   } finally {
     globalThis.fetch = originalFetch;
   }
+});
+
+
+test("D1 memory endpoint saves and retrieves a compact summary", async () => {
+  let stored = null;
+  const db = {
+    prepare(sql) {
+      return {
+        bind(...params) {
+          return {
+            first: async () => stored ? { summary_text: stored, updated_at: 123 } : null,
+            run: async () => { stored = params[1]; return { success: true }; }
+          };
+        }
+      };
+    }
+  };
+  const memoryId = "4c6e8a92-1328-4d2f-9c30-4c3e0fc3e2a1";
+  const saveResponse = await worker.fetch(new Request("https://example.test/api/memory/" + memoryId, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Origin: "https://example.test" },
+    body: JSON.stringify({ summary: "The user is building a persistent live assistant." })
+  }), env({ MEMORY_DB: db }));
+  assert.equal(saveResponse.status, 200);
+  assert.equal((await saveResponse.json()).saved, true);
+  assert.equal(stored, "The user is building a persistent live assistant.");
+
+  const readResponse = await worker.fetch(request("/api/memory/" + memoryId), env({ MEMORY_DB: db }));
+  assert.deepEqual(await readResponse.json(), {
+    summary: "The user is building a persistent live assistant.",
+    updatedAt: 123
+  });
+});
+
+test("D1 memory endpoint rejects invalid identifiers and oversized summaries", async () => {
+  const invalid = await worker.fetch(request("/api/memory/not-a-uuid"), env({ MEMORY_DB: {} }));
+  assert.equal(invalid.status, 400);
+  const memoryId = "4c6e8a92-1328-4d2f-9c30-4c3e0fc3e2a1";
+  const oversized = await worker.fetch(new Request("https://example.test/api/memory/" + memoryId, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Origin: "https://example.test" },
+    body: JSON.stringify({ summary: "x".repeat(3501) })
+  }), env({ MEMORY_DB: {} }));
+  assert.equal(oversized.status, 400);
+});
+
+test("live session route requires a same-origin WebSocket and uses deterministic DO routing", async () => {
+  const sessionId = "4c6e8a92-1328-4d2f-9c30-4c3e0fc3e2a1";
+  let routedName = null;
+  const stub = { fetch: async () => new Response("session accepted") };
+  const sessionNamespace = {
+    idFromName: (name) => { routedName = name; return "deterministic-id"; },
+    get: (id) => { assert.equal(id, "deterministic-id"); return stub; }
+  };
+  const req = new Request("https://example.test/api/live/" + sessionId, {
+    headers: { Upgrade: "websocket", Origin: "https://example.test" }
+  });
+  const response = await worker.fetch(req, env({
+    LIVE_SESSIONS: sessionNamespace,
+    LIVE_SESSION_LIMITER: limiter()
+  }));
+  assert.equal(response.status, 200);
+  assert.equal(await response.text(), "session accepted");
+  assert.equal(routedName, sessionId);
+});
+
+test("live session route rejects missing origin, invalid IDs, and missing bindings", async () => {
+  const sessionId = "4c6e8a92-1328-4d2f-9c30-4c3e0fc3e2a1";
+  const noOrigin = await worker.fetch(new Request("https://example.test/api/live/" + sessionId, {
+    headers: { Upgrade: "websocket" }
+  }), env({ LIVE_SESSIONS: {}, LIVE_SESSION_LIMITER: limiter() }));
+  assert.equal(noOrigin.status, 403);
+
+  const invalid = await worker.fetch(new Request("https://example.test/api/live/not-a-uuid", {
+    headers: { Upgrade: "websocket", Origin: "https://example.test" }
+  }), env({ LIVE_SESSIONS: {}, LIVE_SESSION_LIMITER: limiter() }));
+  assert.equal(invalid.status, 400);
+
+  const missing = await worker.fetch(new Request("https://example.test/api/live/" + sessionId, {
+    headers: { Upgrade: "websocket", Origin: "https://example.test" }
+  }), env());
+  assert.equal(missing.status, 503);
 });

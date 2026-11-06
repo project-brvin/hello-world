@@ -470,6 +470,13 @@
       let activeId = null;
       let isSending = false;
       let toastTimer = null;
+      let liveSocket = null;
+      let liveSessionId = null;
+      let liveReconnectDelay = 500;
+      let liveReconnectTimer = null;
+      let liveEventQueue = [];
+      let longTermMemory = '';
+      const memoryId = getOrCreateMemoryId();
       let voiceRecognition = null;
       let voiceActive = false;
       let voiceSpeaking = false;
@@ -488,6 +495,105 @@
       try { conversations = JSON.parse(localStorage.getItem('chatgpt-ui-demo-chats') || '[]'); } catch (e) { conversations = []; }
       if (!Array.isArray(conversations)) conversations = [];
 
+      function getOrCreateMemoryId() {
+        const key = 'hello-world-memory-id';
+        try {
+          let id = localStorage.getItem(key);
+          if (!id) {
+            id = crypto.randomUUID();
+            localStorage.setItem(key, id);
+          }
+          return id;
+        } catch (e) {
+          return crypto.randomUUID();
+        }
+      }
+      async function loadLongTermMemory() {
+        try {
+          const response = await fetch('/api/memory/' + memoryId, { cache: 'no-store', credentials: 'same-origin' });
+          if (response.ok) {
+            const data = await response.json();
+            longTermMemory = typeof data.summary === 'string' ? data.summary.slice(0, 3500) : '';
+          }
+        } catch (e) {
+          console.warn('Long-term memory is temporarily unavailable; this browser still has its local chat history.');
+        }
+      }
+      async function persistLongTermMemory(summary) {
+        try {
+          const response = await fetch('/api/memory/' + memoryId, {
+            method: 'PUT',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ summary: String(summary || '').slice(0, 3500) })
+          });
+          if (!response.ok) throw new Error('Memory save failed');
+        } catch (e) {
+          console.warn('Long-term memory save failed; the local conversation remains saved.');
+        }
+      }
+      function recordLiveEvent(type, text) {
+        const event = { type, text: typeof text === 'string' ? text.slice(0, 4000) : '' };
+        if (liveSocket && liveSocket.readyState === WebSocket.OPEN) {
+          try { liveSocket.send(JSON.stringify(event)); return; } catch (e) {}
+        }
+        liveEventQueue.push(event);
+        if (liveEventQueue.length > 100) liveEventQueue.shift();
+      }
+      function connectLiveSession(conversation) {
+        if (!conversation) return;
+        if (!conversation.liveSessionId) conversation.liveSessionId = crypto.randomUUID();
+        const requestedId = conversation.liveSessionId;
+        if (liveSocket && liveSessionId === requestedId &&
+            (liveSocket.readyState === WebSocket.OPEN || liveSocket.readyState === WebSocket.CONNECTING)) return;
+        if (liveSocket) {
+          try { liveSocket.close(1000, 'Switching conversation'); } catch (e) {}
+        }
+        clearTimeout(liveReconnectTimer);
+        if (liveSessionId !== requestedId) liveEventQueue = [];
+        liveSessionId = requestedId;
+        const socketUrl = new URL('/api/live/' + requestedId, window.location.href);
+        socketUrl.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        socketUrl.searchParams.set('after', String(Number(conversation.liveLastSequence || 0)));
+        try {
+          liveSocket = new WebSocket(socketUrl.toString());
+        } catch (error) {
+          scheduleLiveReconnect(conversation);
+          return;
+        }
+        liveSocket.onopen = function () {
+          liveReconnectDelay = 500;
+          const queued = liveEventQueue.splice(0, liveEventQueue.length);
+          queued.forEach(function (event) {
+            try { liveSocket.send(JSON.stringify(event)); } catch (e) { liveEventQueue.push(event); }
+          });
+          recordLiveEvent('status', 'connected');
+        };
+        liveSocket.onmessage = function (event) {
+          try {
+            const data = JSON.parse(event.data);
+            if (Number.isSafeInteger(data.sequence)) {
+              conversation.liveLastSequence = Math.max(Number(conversation.liveLastSequence || 0), data.sequence);
+              save();
+            }
+          } catch (e) {}
+        };
+        liveSocket.onclose = function () {
+          if (voiceActive && activeConversation()?.id === conversation.id) scheduleLiveReconnect(conversation);
+        };
+        liveSocket.onerror = function () {
+          try { liveSocket.close(); } catch (e) {}
+        };
+        save();
+      }
+      function scheduleLiveReconnect(conversation) {
+        if (!voiceActive || !conversation || activeConversation()?.id !== conversation.id) return;
+        clearTimeout(liveReconnectTimer);
+        liveReconnectTimer = setTimeout(function () {
+          connectLiveSession(conversation);
+          liveReconnectDelay = Math.min(liveReconnectDelay * 2, 10000);
+        }, liveReconnectDelay);
+      }
       function save() {
         try { localStorage.setItem('chatgpt-ui-demo-chats', JSON.stringify(conversations)); } catch (e) {}
       }
@@ -568,12 +674,15 @@
         if (!clean || isSending) return;
         let c = activeConversation();
         if (!c) {
-          c = { id: newId(), title: clean.slice(0, 34) + (clean.length > 34 ? '…' : ''), messages: [], created: Date.now(), memory: '', summarizedCount: 0 };
+          c = { id: newId(), title: clean.slice(0, 34) + (clean.length > 34 ? '…' : ''), messages: [], created: Date.now(), memory: '', summarizedCount: 0, liveSessionId: crypto.randomUUID() };
           conversations.push(c);
           activeId = c.id;
         }
+        if (!c.liveSessionId) c.liveSessionId = crypto.randomUUID();
         if (voiceActive) {
           voiceTranscriptEl.textContent = clean;
+          connectLiveSession(c);
+          recordLiveEvent('transcript', clean);
           stopVoiceRecognition();
         }
         c.messages.push({ role: 'user', text: clean });
@@ -590,7 +699,7 @@
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              memory: c.memory || '',
+              memory: [longTermMemory, c.memory || ''].filter(Boolean).join('\n\n').slice(0, 3500),
               messages: c.messages
                 .filter(function (message) { return !message.pending; })
                 .slice(-12)
@@ -611,6 +720,7 @@
           updateSendButtons();
           if (activeId === c.id) renderChat();
           else renderHistory();
+          recordLiveEvent('assistant', pending.error ? '' : pending.text);
           if (voiceActive) {
             voiceAssistantEl.textContent = pending.text;
             if (!pending.error) speakVoiceReply(pending.text);
@@ -638,15 +748,17 @@
             credentials: 'same-origin',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              memory: conversation.memory || '',
+              memory: [longTermMemory, conversation.memory || ''].filter(Boolean).join('\n\n').slice(0, 3500),
               messages: segment.map(function (message) { return { role: message.role, text: message.text }; })
             })
           });
           const result = await response.json().catch(function () { return {}; });
           if (response.ok && typeof result.summary === 'string' && result.summary.trim()) {
             conversation.memory = result.summary.trim().slice(0, 3500);
+            longTermMemory = conversation.memory;
             conversation.summarizedCount = start + segment.length;
             save();
+            persistLongTermMemory(longTermMemory);
           }
         } catch (error) {
           console.warn('Conversation memory update failed; the full local chat is still saved.');
@@ -655,6 +767,7 @@
         }
       }
       function newChat() {
+        if (voiceActive) stopVoiceSession();
         activeId = null;
         welcomeInput.value = '';
         chatInput.value = '';
@@ -822,6 +935,16 @@
         voiceActive = true;
         voiceLastError = '';
         voiceView.style.display = 'flex';
+        let conversation = activeConversation();
+        if (!conversation) {
+          conversation = { id: newId(), title: 'Live voice conversation', messages: [], created: Date.now(), memory: '', summarizedCount: 0, liveSessionId: crypto.randomUUID() };
+          conversations.push(conversation);
+          activeId = conversation.id;
+          save();
+          renderHistory();
+        }
+        connectLiveSession(conversation);
+        await loadLongTermMemory();
         await acquireWakeLock();
         if (!createVoiceRecognition()) {
           voiceActive = false;
@@ -837,6 +960,10 @@
         voiceSpeaking = false;
         voiceLastError = '';
         clearTimeout(voiceRestartTimer);
+        clearTimeout(liveReconnectTimer);
+        recordLiveEvent('status', 'paused');
+        if (liveSocket) { try { liveSocket.close(1000, 'Voice session paused'); } catch (e) {} }
+        liveSocket = null;
         stopVoiceRecognition();
         if (voiceRecognition) {
           try { voiceRecognition.abort(); } catch (e) {}
@@ -981,6 +1108,7 @@
         }
       });
       $('voice-interrupt').addEventListener('click', function () {
+        recordLiveEvent('interrupt', '');
         if ('speechSynthesis' in window) window.speechSynthesis.cancel();
         voiceSpeaking = false;
         if (voiceActive) {
@@ -1053,6 +1181,7 @@
       renderHistory();
       setView(false);
       updateSendButtons();
+      loadLongTermMemory();
       updateModelStatus();
       updateVoiceState('idle');
     })();

@@ -46,3 +46,22 @@ test("speech output selects a device voice and reports playback failures", () =>
   assert.match(html, /No speech audio started/);
   assert.match(html, /Android text-to-speech voice settings/);
 });
+
+test("voice client connects to a durable per-conversation WebSocket and records events", () => {
+  assert.match(html, /new WebSocket\(socketUrl\.toString\(\)\)/);
+  assert.match(html, /\/api\/live\//);
+  assert.match(html, /recordLiveEvent\('transcript'/);
+  assert.match(html, /recordLiveEvent\('assistant'/);
+  assert.match(html, /recordLiveEvent\('interrupt'/);
+  assert.match(html, /liveLastSequence/);
+  assert.match(html, /scheduleLiveReconnect/);
+});
+
+test("long-term memory is loaded and persisted through the same-origin D1 API", () => {
+  assert.match(html, /hello-world-memory-id/);
+  assert.match(html, /fetch\('\/api\/memory\/' \+ memoryId, \{ cache: 'no-store', credentials: 'same-origin' \}\)/);
+  assert.match(html, /\/api\/memory\//);
+  assert.match(html, /method: 'PUT'/);
+  assert.match(html, /persistLongTermMemory/);
+  assert.match(html, /longTermMemory/);
+});

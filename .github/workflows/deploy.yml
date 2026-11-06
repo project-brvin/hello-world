@@ -52,6 +52,13 @@ jobs:
       - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # actions/checkout v6
         with:
           persist-credentials: false
+      - name: Apply long-term memory schema
+        uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          wranglerVersion: "4.158.0"
+          command: d1 migrations apply hello-world-memory --remote
       - name: Deploy with Wrangler
         uses: cloudflare/wrangler-action@953926a2e2182532811c01a25e53647d93bf07c0 # v4
         with:
@@ -83,8 +90,9 @@ jobs:
                 typeof value.configured !== "boolean" || typeof value.ready !== "boolean" ||
                 !Array.isArray(value.providers) || !value.voice ||
                 value.voice.input !== "browser-speech-recognition" ||
-                value.voice.output !== "browser-speech-synthesis") {
-              throw new Error("AI and voice status contract failed");
+                value.voice.output !== "browser-speech-synthesis" ||
+                value.sessionOrchestrator !== true || value.durableMemory !== true) {
+              throw new Error("AI, Durable Object, D1, and voice status contract failed");
             }
             if (value.providers.some((provider) => !["Groq", "FreeLLMAPI"].includes(provider.id)) ||
                 value.providers.some((provider) => /key|secret|token/i.test(JSON.stringify(provider)))) {

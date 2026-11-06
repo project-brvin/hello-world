@@ -1,47 +1,59 @@
-# GitHub ↔ ChatGPT ↔ Cloudflare workflow
+# Hello World Live architecture and deployment
 
-## Current application
+## Current application architecture
 
 - GitHub Actions validates pull requests and deploys only validated pushes to main.
-- The Worker exposes a secure same-origin chat endpoint and provider-status endpoint.
-- **Live voice** uses the browser's speech recognition and speech synthesis APIs, with recognition restart after ordinary browser recognition-segment endings.
-- Conversation transcripts are saved in browser local storage. Older turns are periodically summarized into a compact memory that is sent with recent turns.
-- The Worker supports FreeLLMAPI first (when configured), then Groq as fallback.
-- API credentials are server-side Cloudflare Worker secrets; they are never returned to the browser.
-- Per-IP rate limiting, request limits, output limits, provider timeouts, safe error handling, security headers and structured logs are enabled.
+- Cloudflare Worker is the public same-origin API gateway and applies security headers, request validation and rate limits.
+- Cloudflare Durable Objects provide one stateful, SQLite-backed session per opaque browser conversation ID.
+- Durable Object hibernating WebSockets accept control/text events and replay recent events after reconnect. The event journal is bounded to the latest 1,000 events per session.
+- Cloudflare D1 database `hello-world-memory` stores compact cross-session summaries. It is located in APAC with automatic read replication.
+- The browser persists the full transcript locally; older turns are periodically summarized and synchronized to D1.
+- **Raw audio chunks are not currently streamed to the Durable Object or persisted.** The current speech layer still uses browser speech recognition and speech synthesis. The WebSocket currently coordinates completed transcript/assistant/interrupt/status events and prepares the session layer for a future full-duplex audio transport.
+- The Worker supports FreeLLMAPI first (when configured), then Groq as fallback. Provider credentials stay in Cloudflare Worker Secrets.
 
-## Voice-session behavior and limitations
+## Session and memory endpoints
 
-This application keeps one ongoing conversation across multiple short-lived browser speech-recognition sessions. It does not depend on a single WebSocket or speech-recognition process staying alive for an entire day. The browser restarts recognition when a segment ends, and the app retains the conversation and rolling summary locally.
+- `GET /api/live/{sessionId}` upgrades to the Durable Object WebSocket. Session IDs are random UUIDs generated per conversation. The browser sends completed transcript, assistant, interruption, route, and status events; the DO writes them to its embedded SQLite journal.
+- The DO replays up to 100 events after the client's last acknowledged sequence on reconnect. Its journal retains at most 1,000 recent events; the browser remains the canonical full transcript store.
+- `GET /api/memory/{memoryId}` retrieves a compact user memory summary from D1.
+- `PUT /api/memory/{memoryId}` writes an updated summary. The browser stores its random memory ID locally and sends summaries only; it does not save every audio chunk or generated token to D1.
+- The workflow applies D1 schema migrations before Worker deployment; Wrangler applies the Durable Object SQLite class migration as part of deploy.
 
-For best results, use Chrome on Android, grant microphone permission, keep the page in the foreground and keep the phone awake. Screen Wake Lock is requested when supported. The browser/OS can still suspend a page, stop microphone use in the background, or terminate a tab. The current implementation is a turn-taking STT/TTS interface, not full-duplex native audio. Browser speech recognition may use a browser/platform speech service; follow the browser's privacy controls and do not dictate sensitive credentials or payment details.
+The random UUIDs are high-entropy capability identifiers, not user accounts or a complete multi-user authentication system. Treat browser data as personal and do not share session or memory identifiers.
 
-## Provider configuration
+## Current voice limitations
 
-### Groq
+This is a persistent conversation across browser speech-recognition segments, not a native full-duplex audio engine yet. Speech input/output are still supplied by browser/device APIs. The Durable Object currently journals completed text/control events, not raw audio. Keep Chrome in the foreground and the phone awake. Android can still suspend a background tab or microphone when the screen is locked.
+
+## Model provider configuration
+
+### Groq fallback
 
 Store `GROQ_API_KEY` as a Cloudflare Worker Secret in Workers & Pages → hello-world → Settings → Variables and Secrets.
 
-### Optional FreeLLMAPI gateway
+### FreeLLMAPI primary provider
 
-FreeLLMAPI is a self-hosted Node/Docker gateway, not a free hosted inference API. Its repository advertises an aggregate estimate of about 7.4B tokens/month across multiple providers' separate free tiers. That estimate depends on provider quotas, keys, restrictions, model availability, and account eligibility; it is not a guaranteed personal allowance.
+FreeLLMAPI is a self-hosted Node/Docker gateway. The official public container image is `ghcr.io/tashfeenahmed/freellmapi:v0.16.20`. Follow `infra/railway/README.md` to deploy it through the Railway browser dashboard with a persistent volume at `/app/server/data`.
 
-To connect an independently hosted, secured FreeLLMAPI instance:
-
-- Store `FREELLMAPI_BASE_URL` as a Worker text variable, using its OpenAI-compatible base URL ending in `/v1`.
-- Store the gateway's unified API key as Worker Secret `FREELLMAPI_API_KEY`.
+After deployment:
+- Set `FREELLMAPI_BASE_URL` as a Cloudflare Worker text variable, using the Railway HTTPS origin with `/v1` appended. See `infra/railway/README.md` for the exact browser steps.
+- Set its unified API key as Cloudflare Worker Secret `FREELLMAPI_API_KEY`.
 - Keep `GROQ_API_KEY` as the fallback secret.
 
-The Worker sends `auto:balanced` requests to FreeLLMAPI first, then attempts Groq if the gateway request fails. Never expose the FreeLLMAPI service publicly without authentication and an access-control layer.
+The Worker sends `auto:balanced` requests to FreeLLMAPI first and tries Groq if the gateway request fails. FreeLLMAPI itself tracks provider/key quotas, health and fallback chains. Its advertised aggregate token capacity is not a guaranteed allowance; it depends on eligible provider API keys and their independent quotas.
 
-FreeLLMAPI needs an always-on host, persistent SQLite data, and an encryption key. Its Docker Compose defaults to localhost-only. Hosting it in a Cloudflare Container is not part of this deployment: Containers require Workers Paid and have separate resource costs; their local disk is temporary and database persistence must be configured separately.
+## Railway hosting choice
 
-## What this is not
+Railway is selected because it supports public GHCR images, managed persistent volumes and browser-based service configuration. Prefer the upstream Docker image and mount the persistent volume at `/app/server/data`. Avoid unofficial deployment templates that mount `/tmp` without clearly validating persistence.
 
-This is a user-initiated voice assistant. The public chat endpoint has no GitHub or Cloudflare control-plane tools and cannot merge code or deploy. A future autonomous coding agent must have its own identity, narrowly scoped permissions, budget controls, validation and human approval boundaries.
+Railway's Free plan currently has a 0.5 GB volume and 0.5 GB RAM limit; the pricing page says its initial $5 trial credits last 30 days and the Free plan then costs $1/month. Hobby is $5/month minimum including $5 of resource usage credit, with up to 5 GB volume. See https://railway.com/pricing before upgrading.
 
-## Production settings still requiring a repository administrator
+No Railway service has been created by this repository change. The Railway deployment action is not exposed in this automation session, so service creation, volume attachment and first-run admin setup remain browser steps in `infra/railway/README.md`. No paid Railway resource is started automatically.
 
-- Protect main: require pull requests, require the Validate application check, require at least one approval, dismiss stale approvals, and block force pushes/deletion.
-- Protect the production environment with required reviewers and main-only deployment branches.
-- Keep deployment credentials separate from model-provider credentials.
+## Security boundaries
+
+- All provider keys remain in Cloudflare Worker Secrets or FreeLLMAPI's encrypted key store.
+- Only the unified FreeLLMAPI key is given to the Worker; upstream provider keys never reach the browser.
+- FreeLLMAPI's dashboard has its own administrator login. The public `/v1` route requires its unified bearer key.
+- The Worker never logs prompt text or provider credentials.
+- The voice/session APIs do not expose GitHub or Cloudflare control-plane tools.

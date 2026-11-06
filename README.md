@@ -10,7 +10,9 @@ A glassy, browser-based AI chat and voice assistant served by a Cloudflare Worke
 - Automatically restart speech recognition when the browser ends a recognition segment or a connection drops.
 - Choose English (India), Hindi, Bengali, Assamese, or English (US).
 - Keep the transcript in the chat history saved in this browser.
-- Periodically compact older turns into a rolling memory summary, while retaining the full transcript locally, so later turns do not need to resend the entire conversation.
+- Each conversation opens a dedicated Cloudflare Durable Object with a hibernating WebSocket and SQLite event journal for completed transcript, assistant, interruption, and routing events. The journal is bounded to the most recent 1,000 events per session.
+- Compact older turns into rolling memory summaries. The active session journal lives in Durable Object SQLite; cross-session summary memory is stored in Cloudflare D1. Raw audio chunks are not written to either database.
+- The browser reconnects to the same session ID and can replay recent session events after a connection loss.
 
 ### Important device/browser limits
 
@@ -39,9 +41,9 @@ Cloudflare Dashboard → Workers & Pages → hello-world → Settings → Variab
 
 [FreeLLMAPI](https://github.com/tashfeenahmed/freellmapi) is a self-hosted gateway that aggregates separate providers' free tiers behind an OpenAI-compatible API. Its README advertises approximately 7.4 billion monthly tokens across provider quotas. This is the project's aggregate estimate, not a guaranteed personal allowance or a quota automatically granted to this Worker. To access the pool, the gateway owner must provision and maintain the respective provider API credentials and observe each provider's terms and limits.
 
-FreeLLMAPI is a private single-user Node/Docker service, not a public hosted free API. It needs an always-on host, persistent database storage, an encryption key, and a secure route to the Worker. Do not expose its dashboard/API to the public internet. A Cloudflare Container is not deployed by this project; Cloudflare Containers require the Workers Paid plan and are billed separately. Do not provision one unless you have reviewed its cost and storage requirements.
+FreeLLMAPI is a self-hosted Node/Docker gateway, not a free hosted API. It needs an always-on host, persistent database storage, a stable encryption key, and a unified API key. Its admin dashboard requires its own login, and its `/v1` endpoint requires the unified bearer key. The Railway guide uses the official pinned `v0.16.20` image and a persistent `/app/server/data` volume. A Cloudflare Container is not deployed by this project.
 
-Once you have a secure, reachable FreeLLMAPI host and its unified API key:
+Follow [the browser-only Railway deployment guide](infra/railway/README.md) to create the gateway. Once it has a secure, reachable HTTPS address and a unified API key:
 
 - Set `FREELLMAPI_BASE_URL` as a Cloudflare Worker **text variable**, including the `/v1` suffix, for example `https://your-private-gateway.example/v1`.
 - Set `FREELLMAPI_API_KEY` as a Cloudflare Worker **Secret** containing the unified key from the FreeLLMAPI dashboard.
@@ -51,16 +53,18 @@ The Worker then sends `auto:balanced` requests to FreeLLMAPI first and uses Groq
 
 ### Usage and cost
 
-Provider quotas are independent and can change. The router can fail over between configured providers, but cannot make a provider's quota unlimited or guarantee the advertised aggregate capacity. Monitor each provider's terms, rate limits, and billing. Do not create extra accounts or rotate identities to bypass limits.
+Provider quotas are independent and can change. The router can fail over between configured providers, but cannot make a provider's quota unlimited or guarantee any aggregate token estimate. FreeLLMAPI's latest provider/model catalogue can also have plan-based release delays. Monitor each provider's terms, rate limits, and billing. Do not create extra accounts or rotate identities to bypass limits.
 
 ## API routes
 
-- `GET /api/status` reports configured provider names, model identifiers, and browser voice capabilities; it never returns API keys.
+- `GET /api/status` reports configured provider names, model identifiers, browser voice capabilities, and whether Durable Objects/D1 are bound; it never returns API keys.
 - `POST /api/chat` accepts recent user/assistant messages plus optional rolling memory and returns a reply.
 - `POST /api/summarize` compacts an older conversation segment for later context.
+- `GET` / `PUT /api/memory/{opaque-id}` loads and saves the browser's compact long-term memory in D1.
+- `GET /api/live/{opaque-session-id}` upgrades to a per-session Durable Object WebSocket for durable event journaling and reconnect replay.
 - `GET /health` returns the deployed Worker version.
 
-The chat and summary routes validate input, restrict browser-origin requests, use the Cloudflare per-IP rate limiter (10 requests per 60 seconds, per Cloudflare location), cap the model output, use a provider timeout, and do not log prompt content or credentials.
+The chat and summary routes validate input, restrict browser-origin requests, use the Cloudflare per-IP rate limiter (10 requests per 60 seconds, per Cloudflare location), cap model output, use provider timeouts, and do not log prompt content or credentials. Live WebSocket opens have a separate per-IP reconnect limiter. Browser memory/session identifiers are random UUID capability identifiers, not a substitute for account authentication; do not share them.
 
 ## Reproducible CI and deploy
 
