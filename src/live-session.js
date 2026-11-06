@@ -59,6 +59,14 @@ export class LiveSession {
     const text = payload.text == null ? "" : String(payload.text);
     if (text.length > MAX_EVENT_TEXT) { socket.send(JSON.stringify({ type: "error", code: "event_text_too_long" })); return; }
     const createdAt = Date.now();
+    const recent = this.ctx.storage.sql.exec(
+      "SELECT COUNT(*) AS count FROM session_events WHERE created_at > ?",
+      createdAt - 60_000
+    ).one();
+    if (Number(recent.count || 0) >= 120) {
+      socket.send(JSON.stringify({ type: "error", code: "session_event_rate_limited" }));
+      return;
+    }
     const inserted = this.ctx.storage.sql.exec("INSERT INTO session_events (event_type, text_content, created_at) VALUES (?, ?, ?) RETURNING sequence", payload.type, text, createdAt).one();
     const sequence = Number(inserted.sequence);
     this.ctx.storage.sql.exec("DELETE FROM session_events WHERE sequence <= (SELECT COALESCE(MAX(sequence), 0) - 1000 FROM session_events)");
