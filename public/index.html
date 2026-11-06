@@ -4,8 +4,8 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#ffffff">
-  <meta name="description" content="A clean, ChatGPT-inspired chat interface demo.">
-  <title>ChatGPT — Demo</title>
+  <meta name="description" content="A minimal AI chat interface powered by Groq GPT-OSS.">
+  <title>Hello World AI</title>
   <style>
     :root {
       color-scheme: light;
@@ -242,6 +242,8 @@
     .assistant-copy { padding-top: 2px; white-space: pre-wrap; }
     .assistant-copy p { margin: 0 0 10px; }
     .assistant-copy p:last-child { margin-bottom: 0; }
+    .assistant-copy.pending { color: var(--muted); }
+    .assistant-copy.error { color: #b54747; }
     .assistant-actions { display: flex; gap: 3px; margin-top: 9px; }
     .assistant-actions button { display: inline-grid; width: 29px; height: 29px; place-items: center; border: 0; border-radius: 7px; background: transparent; color: var(--muted); cursor: pointer; }
     .assistant-actions button:hover { background: var(--soft); color: var(--text); }
@@ -299,7 +301,7 @@
   <div class="app">
     <aside class="sidebar" id="sidebar" aria-label="Main navigation">
       <div class="sidebar-top">
-        <div class="brand-mark" aria-label="ChatGPT demo">
+        <div class="brand-mark" aria-label="Hello World AI">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.2a4.4 4.4 0 0 0-4.1 2.8 4.2 4.2 0 0 0-3.3 6.2 4.3 4.3 0 0 0 2.1 6.9 4.4 4.4 0 0 0 7.1 1.1 4.2 4.2 0 0 0 7.2-4.3 4.3 4.3 0 0 0 .1-7.1 4.4 4.4 0 0 0-5.1-5.4A4.3 4.3 0 0 0 12 3.2Z"/><path d="m8 6.3 8.1 4.6v5.2M4.6 12.2l8.1 4.7 4.6-2.7M7 19.1l.1-9.3 4.5-2.6M19.4 8.8l-8.1 4.7v5.2"/></svg>
         </div>
         <button class="icon-btn" id="collapse-sidebar" aria-label="Close sidebar" title="Close sidebar">
@@ -330,8 +332,8 @@
           <button class="icon-btn mobile-menu" id="open-sidebar" aria-label="Open sidebar">
             <svg viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
           </button>
-          <div class="product-name">ChatGPT <svg class="chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></div>
-          <span class="demo-pill">UI demo</span>
+          <div class="product-name">Hello World AI <svg class="chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5" fill="none" stroke="currentColor" stroke-width="1.8"/></svg></div>
+          <span class="demo-pill" id="model-status" aria-live="polite">Checking AI…</span>
         </div>
         <div class="top-right">
           <button class="top-link" id="share-button" title="Share this demo">
@@ -347,7 +349,7 @@
               <button class="icon-btn add-btn" type="button" id="attach-welcome" aria-label="Attach a file" title="Attach a file">
                 <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
               </button>
-              <textarea class="message-input" id="welcome-input" rows="1" maxlength="4000" placeholder="Message ChatGPT..." aria-label="Message ChatGPT"></textarea>
+              <textarea class="message-input" id="welcome-input" rows="1" maxlength="4000" placeholder="Message Hello World AI..." aria-label="Message ChatGPT"></textarea>
               <button class="send-btn" id="welcome-send" type="submit" disabled aria-label="Send message">
                 <svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
               </button>
@@ -379,12 +381,12 @@
               <button class="icon-btn add-btn" type="button" id="attach-chat" aria-label="Attach a file" title="Attach a file">
                 <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
               </button>
-              <textarea class="message-input" id="chat-input" rows="1" maxlength="4000" placeholder="Message ChatGPT..." aria-label="Message ChatGPT"></textarea>
+              <textarea class="message-input" id="chat-input" rows="1" maxlength="4000" placeholder="Message Hello World AI..." aria-label="Message ChatGPT"></textarea>
               <button class="send-btn" id="chat-send" type="submit" disabled aria-label="Send message">
                 <svg viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></svg>
               </button>
             </form>
-            <p class="chat-note">Demo replies are generated locally. This page is not connected to an AI model.</p>
+            <p class="chat-note" id="chat-note" aria-live="polite">Checking model connection…</p>
           </div>
         </section>
         <input type="file" id="file-input" hidden multiple>
@@ -401,6 +403,7 @@
       const fileInput = $('file-input');
       let conversations = [];
       let activeId = null;
+      let isSending = false;
       let toastTimer = null;
       try { conversations = JSON.parse(localStorage.getItem('chatgpt-ui-demo-chats') || '[]'); } catch (e) { conversations = []; }
       if (!Array.isArray(conversations)) conversations = [];
@@ -461,9 +464,12 @@
             row.innerHTML = '<div class="message-body user-bubble"></div>';
             row.querySelector('.message-body').textContent = m.text;
           } else {
-            row.innerHTML = assistantIcon() + '<div class="message-body"><div class="assistant-copy"></div><div class="assistant-actions"><button type="button" title="Copy response" aria-label="Copy response"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div></div>';
+            const pending = Boolean(m.pending);
+            const error = Boolean(m.error);
+            const actions = pending ? '' : '<div class="assistant-actions"><button type="button" title="Copy response" aria-label="Copy response"><svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg></button></div>';
+            row.innerHTML = assistantIcon() + '<div class="message-body"><div class="assistant-copy' + (pending ? ' pending' : '') + (error ? ' error' : '') + '"></div>' + actions + '</div>';
             row.querySelector('.assistant-copy').textContent = m.text;
-            row.querySelector('button').addEventListener('click', function () {
+            if (!pending) row.querySelector('button').addEventListener('click', function () {
               copyText(m.text);
             });
           }
@@ -477,25 +483,9 @@
           navigator.clipboard.writeText(text).then(function () { notify('Copied to clipboard'); }).catch(function () { notify('Clipboard access is unavailable'); });
         } else { notify('Clipboard access is unavailable'); }
       }
-      function demoReply(userText) {
-        const t = userText.toLowerCase();
-        if (t.includes('hello') || t.includes('hi ') || t === 'hi' || t.includes('hey')) {
-          return 'Hello! 👋\n\nYou’re chatting inside a working ChatGPT-inspired interface. Try the sidebar, start a new conversation, switch themes, or send another message.';
-        }
-        if (t.includes('plan') || t.includes('week') || t.includes('schedule')) {
-          return 'Here’s a simple way to get started:\n\n1. Pick your three most important outcomes.\n2. Block focused time for the hardest task first.\n3. Group small errands into one slot.\n4. Leave some breathing room for surprises.\n\nTell me your priorities and I can help shape a more detailed example. (This demo response is local, not AI-generated.)';
-        }
-        if (t.includes('write') || t.includes('draft') || t.includes('message')) {
-          return 'Absolutely — a useful writing brief includes the audience, the main point, and the tone you want.\n\nShare those details and I can help you structure a draft. In this preview, replies are fixed demo examples rather than responses from an AI model.';
-        }
-        if (t.includes('explain') || t.includes('learn') || t.includes('what is')) {
-          return 'A good explanation starts with the core idea, then adds a simple example, and finally covers the details.\n\nThis interface is only a front-end demonstration: it does not send your message to an AI service. Connect a secure backend to add real model responses.';
-        }
-        return 'Thanks for trying the demo. Your message was added to this conversation and saved in this browser.\n\nThis is a front-end-only preview, so I’m not connected to an AI model yet. To make it truly conversational, connect a server-side API endpoint and keep any API key on the server — never in browser JavaScript.';
-      }
-      function addMessage(text) {
+      async function addMessage(text) {
         const clean = text.trim();
-        if (!clean) return;
+        if (!clean || isSending) return;
         let c = activeConversation();
         if (!c) {
           c = { id: newId(), title: clean.slice(0, 34) + (clean.length > 34 ? '…' : ''), messages: [], created: Date.now() };
@@ -503,9 +493,39 @@
           activeId = c.id;
         }
         c.messages.push({ role: 'user', text: clean });
-        c.messages.push({ role: 'assistant', text: demoReply(clean) });
+        const pending = { role: 'assistant', text: 'Thinking…', pending: true };
+        c.messages.push(pending);
+        isSending = true;
         save();
+        updateSendButtons();
         renderChat();
+        try {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              messages: c.messages
+                .filter(function (message) { return !message.pending; })
+                .slice(-12)
+                .map(function (message) { return { role: message.role, text: message.text }; })
+            })
+          });
+          const result = await response.json().catch(function () { return {}; });
+          if (!response.ok) throw new Error(result.error || 'The AI service could not complete this request.');
+          if (typeof result.reply !== 'string' || !result.reply.trim()) throw new Error('The AI service returned an empty response.');
+          pending.text = result.reply.trim();
+        } catch (error) {
+          pending.text = error instanceof Error ? error.message : 'The AI service could not complete this request.';
+          pending.error = true;
+        } finally {
+          pending.pending = false;
+          isSending = false;
+          save();
+          updateSendButtons();
+          if (activeId === c.id) renderChat();
+          else renderHistory();
+        }
       }
       function newChat() {
         activeId = null;
@@ -530,8 +550,30 @@
         input.style.height = Math.min(input.scrollHeight, 180) + 'px';
       }
       function updateSendButtons() {
-        $('welcome-send').disabled = !welcomeInput.value.trim();
-        $('chat-send').disabled = !chatInput.value.trim();
+        $('welcome-send').disabled = isSending || !welcomeInput.value.trim();
+        $('chat-send').disabled = isSending || !chatInput.value.trim();
+      }
+      async function updateModelStatus() {
+        const badge = $('model-status');
+        const note = $('chat-note');
+        try {
+          const response = await fetch('/api/status', { cache: 'no-store', credentials: 'same-origin' });
+          if (!response.ok) throw new Error('Status unavailable');
+          const status = await response.json();
+          if (status.ready) {
+            badge.textContent = 'Groq · GPT-OSS 20B';
+            note.textContent = 'Powered by Groq GPT-OSS 20B. Free-tier limits apply; avoid sending sensitive information.';
+          } else if (!status.configured) {
+            badge.textContent = 'Groq key required';
+            note.textContent = 'Add GROQ_API_KEY as a Cloudflare Worker secret to enable AI replies. The key is never sent to the browser.';
+          } else {
+            badge.textContent = 'AI setup incomplete';
+            note.textContent = 'The AI service needs its Cloudflare rate-limit binding before it can accept messages.';
+          }
+        } catch {
+          badge.textContent = 'AI status unavailable';
+          note.textContent = 'The model connection could not be checked. Please try again later.';
+        }
       }
       function openSidebar() { sidebar.classList.add('open'); backdrop.classList.add('show'); }
       function closeSidebar() { sidebar.classList.remove('open'); backdrop.classList.remove('show'); }
@@ -576,13 +618,14 @@
         fileInput.value = '';
       });
       $('share-button').addEventListener('click', function () {
-        if (navigator.share) navigator.share({ title: 'ChatGPT UI demo', url: location.href }).catch(function () {});
+        if (navigator.share) navigator.share({ title: 'Hello World AI', url: location.href }).catch(function () {});
         else copyText(location.href);
       });
       conversations.sort(function (a, b) { return (a.created || 0) - (b.created || 0); });
       renderHistory();
       setView(false);
       updateSendButtons();
+      updateModelStatus();
     })();
   </script>
 </body>
