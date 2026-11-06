@@ -18,7 +18,7 @@ This is a persistent conversation, not one permanent audio connection. Browsers 
 
 A browser page cannot guarantee microphone capture after the phone is locked, the browser is backgrounded or suspended, the operating system kills the tab, or the network is unavailable. Android battery optimisation and browser policies can interrupt long sessions. Reopen the same site in the same browser to continue from its locally saved chats.
 
-The current voice loop is turn-taking speech recognition and speech synthesis. It is not yet a low-latency, full-duplex native audio model like Gemini Live. Speech recognition and playback are supplied by the browser/device; availability and handling of speech data depend on the browser and its configured speech service. Avoid speaking passwords, payment details, or other sensitive information.
+The current voice loop is turn-taking speech recognition and speech synthesis. It is not yet a low-latency, full-duplex native audio model like Gemini Live. The assistant prompt is designed for general understanding and natural responses rather than fixed scripted answers. Groq GPT-OSS uses medium reasoning effort with reasoning output excluded from the user-facing answer. On Android, playback selects the best available device voice for the chosen language; if no voice starts, the UI displays a troubleshooting message. Check Android Settings → System → Languages & input → Text-to-speech output, and make sure media volume is turned up. Speech recognition and playback are supplied by the browser/device; availability and handling of speech data depend on the browser and its configured speech service. Avoid speaking passwords, payment details, or other sensitive information.
 
 ## Model providers
 

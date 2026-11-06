@@ -194,29 +194,29 @@ test("chat endpoint validates roles and message size", async () => {
   assert.equal(tooLong.status, 400);
 });
 
-test("voice assistant system prompt defines its name and answers clear questions directly", async () => {
+test("assistant receives natural reasoning instructions without a canned identity response", async () => {
   const originalFetch = globalThis.fetch;
   let body;
   globalThis.fetch = async (_url, options) => {
     body = JSON.parse(options.body);
     return new Response(JSON.stringify({
-      choices: [{ message: { role: "assistant", content: "I'm Hello World AI. You can call me Hello." } }]
+      choices: [{ message: { role: "assistant", content: "I'm the AI assistant that powers this app. What would you like to explore?" } }]
     }), { status: 200, headers: { "Content-Type": "application/json" } });
   };
   try {
     const response = await worker.fetch(postChat([{ role: "user", text: "what is your name" }]), env());
     assert.equal(response.status, 200);
-    assert.deepEqual(await response.json(), {
-      reply: "I'm Hello World AI. You can call me Hello.",
-      provider: "Groq",
-      model: "openai/gpt-oss-20b"
-    });
+    const result = await response.json();
+    assert.equal(result.reply, "I'm the AI assistant that powers this app. What would you like to explore?");
     const systemPrompt = body.messages[0].content;
-    assert.match(systemPrompt, /Your name is Hello World AI/);
-    assert.match(systemPrompt, /answer the user's actual question directly/i);
-    assert.match(systemPrompt, /Never use a generic clarification/i);
-    assert.equal(body.reasoning_effort, "low");
-    assert.equal(body.reasoning_format, "hidden");
+    assert.match(systemPrompt, /general-purpose AI assistant/i);
+    assert.match(systemPrompt, /reason about the question/i);
+    assert.match(systemPrompt, /Identity is context, not a script/i);
+    assert.match(systemPrompt, /Do not behave like a rigid FAQ bot/i);
+    assert.doesNotMatch(systemPrompt, /when asked your name, say:/i);
+    assert.equal(body.reasoning_effort, "medium");
+    assert.equal(body.include_reasoning, false);
+    assert.equal("reasoning_format" in body, false);
   } finally {
     globalThis.fetch = originalFetch;
   }

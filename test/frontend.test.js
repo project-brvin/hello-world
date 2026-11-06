@@ -37,3 +37,12 @@ test("live voice session uses saved chat history and a rolling memory summary", 
   assert.match(html, /3500/);
   assert.match(html, /The microphone reconnects/);
 });
+
+test("speech output selects a device voice and reports playback failures", () => {
+  assert.match(html, /function chooseSpeechVoice\(synth, language\)/);
+  assert.match(html, /getVoices\(\)/);
+  assert.match(html, /voiceschanged/);
+  assert.match(html, /utterance\.onstart/);
+  assert.match(html, /No speech audio started/);
+  assert.match(html, /Android text-to-speech voice settings/);
+});
