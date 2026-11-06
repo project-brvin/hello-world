@@ -21,9 +21,11 @@ For a single-user gateway, start with the Free plan if the image and data fit it
 5. Choose **Docker Image**.
 6. Enter this exact public image:
 
-   `ghcr.io/tashfeenahmed/freellmapi:latest`
+   `ghcr.io/tashfeenahmed/freellmapi:v0.16.20`
 
 7. Confirm / Deploy the image.
+
+The current pinned upstream release is `v0.16.20` (released 6 November 2026). Pinning a release avoids an unexpected latest-image update during initial setup. Check upstream releases before changing the tag: https://github.com/tashfeenahmed/freellmapi/releases.
 
 Use the official GHCR image rather than the unofficial community deployment template. The community template currently mounts `/tmp` and labels its own persistence setup as uncertain. The upstream Docker guide specifies `/app/server/data` as the persistent application data directory.
 
