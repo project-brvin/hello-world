@@ -59,7 +59,7 @@ test("voice client connects to a durable per-conversation WebSocket and records 
 
 test("long-term memory is loaded and persisted through the same-origin D1 API", () => {
   assert.match(html, /hello-world-memory-id/);
-  assert.match(html, /GET/);
+  assert.match(html, /fetch\('\/api\/memory\/' \+ memoryId, \{ cache: 'no-store', credentials: 'same-origin' \}\)/);
   assert.match(html, /\/api\/memory\//);
   assert.match(html, /method: 'PUT'/);
   assert.match(html, /persistLongTermMemory/);
