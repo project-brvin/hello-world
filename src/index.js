@@ -388,6 +388,8 @@ async function memoryRoute(request, env, memoryId) {
     if (typeof summary !== "string" || summary.length > MAX_MEMORY_CHARS) {
       return jsonResponse({ error: "Memory summary must be text of at most 3500 characters.", code: "invalid_memory" }, 400);
     }
+    const rateError = await applyRateLimit(request, env);
+    if (rateError) return rateError;
     const updatedAt = Date.now();
     await env.MEMORY_DB.prepare("INSERT INTO conversation_memory (memory_id, summary_text, updated_at) VALUES (?, ?, ?) ON CONFLICT(memory_id) DO UPDATE SET summary_text = excluded.summary_text, updated_at = excluded.updated_at").bind(memoryId, summary.trim(), updatedAt).run();
     return jsonResponse({ saved: true, updatedAt });
@@ -398,8 +400,12 @@ async function memoryRoute(request, env, memoryId) {
 async function liveSessionRoute(request, env, sessionId) {
   if (!validOpaqueId(sessionId)) return jsonResponse({ error: "Invalid live session identifier.", code: "invalid_session_id" }, 400);
   const origin = request.headers.get("Origin");
-  if (!origin || new URL(origin).origin !== new URL(request.url).origin) {
-    return jsonResponse({ error: "A same-origin browser connection is required.", code: "origin_not_allowed" }, 403);
+  try {
+    if (!origin || new URL(origin).origin !== new URL(request.url).origin) {
+      return jsonResponse({ error: "A same-origin browser connection is required.", code: "origin_not_allowed" }, 403);
+    }
+  } catch {
+    return jsonResponse({ error: "Invalid connection origin.", code: "origin_not_allowed" }, 403);
   }
   if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") {
     return jsonResponse({ error: "WebSocket upgrade required.", code: "upgrade_required" }, 426);
