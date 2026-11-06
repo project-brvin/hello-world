@@ -23,7 +23,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
       # Create/update the lockfile on the first run and ensure local-style install works.
       - name: Install dependencies (npm install)
