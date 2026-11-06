@@ -72,3 +72,23 @@ jobs:
           page="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 https://hello-world.projectbrvin.workers.dev/)"
           printf '%s' "$page" | grep -Fq "What can I help with?"
           echo "Homepage smoke test passed."
+      - name: Verify AI status and security headers
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 https://hello-world.projectbrvin.workers.dev/api/status)"
+          node --input-type=module -e '
+            const value = JSON.parse(process.argv[1]);
+            if (value.provider !== "Groq" || value.model !== "openai/gpt-oss-20b" ||
+                typeof value.configured !== "boolean" || typeof value.ready !== "boolean") {
+              throw new Error("AI status contract failed");
+            }
+            if (Object.keys(value).some((key) => /key|secret|token/i.test(key))) {
+              throw new Error("AI status leaked a sensitive field");
+            }
+            console.log(JSON.stringify({ smoke_test: "ai-status", provider: value.provider, model: value.model, ready: value.ready }));
+          ' "$status"
+          headers="$(curl --fail --silent --show-error --head https://hello-world.projectbrvin.workers.dev/)"
+          printf '%s\n' "$headers" | grep -Eiq '^x-content-type-options: nosniff'
+          printf '%s\n' "$headers" | grep -Eiq '^content-security-policy:'
+          echo "Homepage security-header smoke test passed."
