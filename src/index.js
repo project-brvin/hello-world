@@ -22,11 +22,15 @@ const MAX_SUMMARY_MESSAGES = 24;
 function secure(response) {
   const headers = new Headers(response.headers);
   for (const [key, value] of Object.entries(SECURITY_HEADERS)) headers.set(key, value);
-  return new Response(response.body, {
+  const init = {
     status: response.status,
     statusText: response.statusText,
     headers
-  });
+  };
+  // Cloudflare Workers require the WebSocket endpoint to survive response
+  // wrapping; without this property the 101 handshake becomes a normal response.
+  if (response.webSocket) init.webSocket = response.webSocket;
+  return new Response(response.body, init);
 }
 
 function jsonResponse(payload, status = 200, extraHeaders = {}) {
