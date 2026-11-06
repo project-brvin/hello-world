@@ -8,6 +8,9 @@ class FakeSql {
     if (query.startsWith("CREATE TABLE") || query.startsWith("CREATE INDEX")) {
       return { toArray: () => [], one: () => ({}) };
     }
+    if (query.includes("SELECT COUNT(*) AS count FROM session_events")) {
+      return { one: () => ({ count: this.events.filter(event => event.created_at > Number(params[0])).length }) };
+    }
     if (query.includes("SELECT COALESCE(MAX(sequence)")) {
       return { one: () => ({ sequence: this.events.at(-1)?.sequence ?? 0 }) };
     }
@@ -101,4 +104,15 @@ test("Durable Object retains only a bounded replay journal", () => {
   assert.equal(sql.events.length, 1000);
   assert.equal(sql.events[0].sequence, 6);
   assert.equal(sql.events.at(-1).sequence, 1005);
+});
+
+
+test("Durable Object rate-limits excessive control events in one session", () => {
+  const { session, sql, socket } = makeSession();
+  for (let i = 0; i < 120; i++) {
+    session.webSocketMessage(socket, JSON.stringify({ type: "status", text: "event-" + i }));
+  }
+  session.webSocketMessage(socket, JSON.stringify({ type: "status", text: "one too many" }));
+  assert.equal(sql.events.length, 120);
+  assert.equal(JSON.parse(socket.sent.at(-1)).code, "session_event_rate_limited");
 });
