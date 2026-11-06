@@ -9,7 +9,13 @@
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "single-page-application"
   },
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
   "observability": {
-    "enabled": true
+    "enabled": true,
+    "logs": { "enabled": true, "invocation_logs": true, "head_sampling_rate": 1 },
+    "traces": { "enabled": true, "head_sampling_rate": 0.01 },
+    "logs": { "enabled": true, "invocation_logs": true, "head_sampling_rate": 1 }
   }
 }
