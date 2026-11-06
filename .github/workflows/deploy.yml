@@ -1,0 +1,43 @@
+name: Deploy Hello World to Cloudflare Workers
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: hello-world-production
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      # Create/update the lockfile on the first run and ensure local-style install works.
+      - name: Install dependencies (npm install)
+        run: npm install
+
+      # Reinstall from the lockfile for a clean, reproducible CI install.
+      - name: Clean install (npm ci)
+        run: npm ci
+
+      - name: Validate Worker bundle
+        run: npm run check
+
+      - name: Deploy to Cloudflare Workers
+        run: npm run deploy
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
