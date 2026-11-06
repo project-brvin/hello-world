@@ -472,7 +472,6 @@
       let toastTimer = null;
       let liveSocket = null;
       let liveSessionId = null;
-      let liveLastSequence = 0;
       let liveReconnectDelay = 500;
       let liveReconnectTimer = null;
       let liveEventQueue = [];
@@ -551,10 +550,11 @@
           try { liveSocket.close(1000, 'Switching conversation'); } catch (e) {}
         }
         clearTimeout(liveReconnectTimer);
+        if (liveSessionId !== requestedId) liveEventQueue = [];
         liveSessionId = requestedId;
         const socketUrl = new URL('/api/live/' + requestedId, window.location.href);
         socketUrl.protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        socketUrl.searchParams.set('after', String(liveLastSequence));
+        socketUrl.searchParams.set('after', String(Number(conversation.liveLastSequence || 0)));
         try {
           liveSocket = new WebSocket(socketUrl.toString());
         } catch (error) {
@@ -572,7 +572,10 @@
         liveSocket.onmessage = function (event) {
           try {
             const data = JSON.parse(event.data);
-            if (Number.isSafeInteger(data.sequence)) liveLastSequence = Math.max(liveLastSequence, data.sequence);
+            if (Number.isSafeInteger(data.sequence)) {
+              conversation.liveLastSequence = Math.max(Number(conversation.liveLastSequence || 0), data.sequence);
+              save();
+            }
           } catch (e) {}
         };
         liveSocket.onclose = function () {
@@ -764,6 +767,7 @@
         }
       }
       function newChat() {
+        if (voiceActive) stopVoiceSession();
         activeId = null;
         welcomeInput.value = '';
         chatInput.value = '';
