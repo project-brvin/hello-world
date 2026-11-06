@@ -11,7 +11,11 @@ class FakeSql {
     if (query.includes("SELECT COUNT(*) AS count FROM session_events")) {
       return { one: () => ({ count: this.events.filter(event => event.created_at > Number(params[0])).length }) };
     }
-    if (query.includes("SELECT COALESCE(MAX(sequence)")) {
+    if (query.startsWith("DELETE FROM session_events")) {
+      if (this.events.length > 1000) this.events = this.events.slice(-1000);
+      return { toArray: () => [] };
+    }
+    if (query.startsWith("SELECT COALESCE(MAX(sequence)")) {
       return { one: () => ({ sequence: this.events.at(-1)?.sequence ?? 0 }) };
     }
     if (query.includes("INSERT INTO session_events")) {
@@ -23,10 +27,6 @@ class FakeSql {
       };
       this.events.push(event);
       return { one: () => ({ sequence: event.sequence }) };
-    }
-    if (query.includes("DELETE FROM session_events")) {
-      if (this.events.length > 1000) this.events = this.events.slice(-1000);
-      return { toArray: () => [] };
     }
     if (query.includes("SELECT sequence, event_type")) {
       const after = Number(params[0]);
