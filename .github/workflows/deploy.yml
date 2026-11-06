@@ -77,7 +77,7 @@ jobs:
             console.log(JSON.stringify({ smoke_test: "health", version: value.version }));
           ' "$health"
           page="$(curl --fail --silent --show-error --retry 5 --retry-all-errors --retry-delay 2 https://hello-world.projectbrvin.workers.dev/)"
-          printf '%s' "$page" | grep -Fq "What can I help with?"
+          grep -Fq "What can I help with?" <<< "$page"
           echo "Homepage smoke test passed."
       - name: Verify AI status and security headers
         shell: bash
@@ -104,6 +104,6 @@ jobs:
             console.log(JSON.stringify({ smoke_test: "ai-status", providers: value.providers.map((provider) => provider.id), ready: value.ready, voice: value.voice.persistentSession }));
           ' "$status"
           headers="$(curl --fail --silent --show-error --head https://hello-world.projectbrvin.workers.dev/)"
-          printf '%s\n' "$headers" | grep -Eiq '^x-content-type-options: nosniff'
-          printf '%s\n' "$headers" | grep -Eiq '^content-security-policy:'
+          grep -Eiq '^x-content-type-options: nosniff' <<< "$headers"
+          grep -Eiq '^content-security-policy:' <<< "$headers"
           echo "Homepage security-header smoke test passed."
