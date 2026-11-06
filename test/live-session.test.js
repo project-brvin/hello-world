@@ -98,8 +98,16 @@ test("Durable Object bounds WebSocket payloads and closes oversized messages", (
 
 test("Durable Object retains only a bounded replay journal", () => {
   const { session, sql, socket } = makeSession();
-  for (let i = 0; i < 1005; i++) {
-    session.webSocketMessage(socket, JSON.stringify({ type: "status", text: "event-" + i }));
+  const originalNow = Date.now;
+  let fakeNow = originalNow();
+  Date.now = () => fakeNow;
+  try {
+    for (let i = 0; i < 1005; i++) {
+      fakeNow += 1000;
+      session.webSocketMessage(socket, JSON.stringify({ type: "status", text: "event-" + i }));
+    }
+  } finally {
+    Date.now = originalNow;
   }
   assert.equal(sql.events.length, 1000);
   assert.equal(sql.events[0].sequence, 6);
