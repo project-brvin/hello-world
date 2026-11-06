@@ -1,3 +1,6 @@
+import { LiveSession } from "./live-session.js";
+export { LiveSession };
+
 const SECURITY_HEADERS = {
   "Content-Security-Policy": "default-src 'self'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; connect-src 'self'",
   "Permissions-Policy": "camera=(self), microphone=(self), geolocation=()",
@@ -79,7 +82,9 @@ function apiStatus(env) {
       input: "browser-speech-recognition",
       output: "browser-speech-synthesis",
       persistentSession: true
-    }
+    },
+    sessionOrchestrator: Boolean(env.LIVE_SESSIONS),
+    durableMemory: Boolean(env.MEMORY_DB)
   });
 }
 
@@ -358,6 +363,52 @@ async function summarize(request, env) {
   });
 }
 
+function validOpaqueId(value) {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value);
+}
+
+async function memoryRoute(request, env, memoryId) {
+  const originError = await checkOrigin(request);
+  if (originError) return originError;
+  if (!validOpaqueId(memoryId)) return jsonResponse({ error: "Invalid memory identifier.", code: "invalid_memory_id" }, 400);
+  if (!env.MEMORY_DB) return jsonResponse({ error: "Long-term memory is not configured.", code: "memory_not_configured" }, 503);
+
+  if (request.method === "GET") {
+    const row = await env.MEMORY_DB.prepare("SELECT summary_text, updated_at FROM conversation_memory WHERE memory_id = ?").bind(memoryId).first();
+    return jsonResponse({ summary: row?.summary_text || "", updatedAt: row?.updated_at || null });
+  }
+  if (request.method === "PUT") {
+    const bodyResult = await readJsonBody(request, 8 * 1024);
+    if (bodyResult.error) return bodyResult.error;
+    const summary = bodyResult.payload?.summary;
+    if (typeof summary !== "string" || summary.length > MAX_MEMORY_CHARS) {
+      return jsonResponse({ error: "Memory summary must be text of at most 3500 characters.", code: "invalid_memory" }, 400);
+    }
+    const updatedAt = Date.now();
+    await env.MEMORY_DB.prepare("INSERT INTO conversation_memory (memory_id, summary_text, updated_at) VALUES (?, ?, ?) ON CONFLICT(memory_id) DO UPDATE SET summary_text = excluded.summary_text, updated_at = excluded.updated_at").bind(memoryId, summary.trim(), updatedAt).run();
+    return jsonResponse({ saved: true, updatedAt });
+  }
+  return jsonResponse({ error: "Method Not Allowed", code: "method_not_allowed" }, 405, { Allow: "GET, PUT" });
+}
+
+async function liveSessionRoute(request, env, sessionId) {
+  if (!validOpaqueId(sessionId)) return jsonResponse({ error: "Invalid live session identifier.", code: "invalid_session_id" }, 400);
+  const origin = request.headers.get("Origin");
+  if (!origin || new URL(origin).origin !== new URL(request.url).origin) {
+    return jsonResponse({ error: "A same-origin browser connection is required.", code: "origin_not_allowed" }, 403);
+  }
+  if (request.headers.get("Upgrade")?.toLowerCase() !== "websocket") {
+    return jsonResponse({ error: "WebSocket upgrade required.", code: "upgrade_required" }, 426);
+  }
+  if (!env.LIVE_SESSIONS) return jsonResponse({ error: "Live session storage is not configured.", code: "session_not_configured" }, 503);
+  if (!env.LIVE_SESSION_LIMITER) return jsonResponse({ error: "Live session protection is not configured.", code: "session_limiter_not_configured" }, 503);
+  const clientIp = request.headers.get("CF-Connecting-IP") || "unknown";
+  const limit = await env.LIVE_SESSION_LIMITER.limit({ key: clientIp });
+  if (!limit.success) return jsonResponse({ error: "Too many live session reconnects. Please wait a moment.", code: "session_rate_limited" }, 429, { "Retry-After": "60" });
+  const id = env.LIVE_SESSIONS.idFromName(sessionId);
+  return env.LIVE_SESSIONS.get(id).fetch(request);
+}
+
 export default {
   async fetch(request, env) {
     const url = new URL(request.url);
@@ -388,6 +439,16 @@ export default {
         }));
       }
       return secure(apiStatus(env));
+    }
+
+    const memoryMatch = url.pathname.match(/^\/api\/memory\/([^/]+)$/);
+    if (memoryMatch) {
+      return secure(await memoryRoute(request, env, memoryMatch[1]));
+    }
+
+    const liveMatch = url.pathname.match(/^\/api\/live\/([^/]+)$/);
+    if (liveMatch) {
+      return secure(await liveSessionRoute(request, env, liveMatch[1]));
     }
 
     if (url.pathname === "/api/chat") {
