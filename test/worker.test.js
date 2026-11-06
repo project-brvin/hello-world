@@ -312,8 +312,10 @@ test("D1 memory endpoint saves and retrieves a compact summary", async () => {
     }
   };
   const memoryId = "4c6e8a92-1328-4d2f-9c30-4c3e0fc3e2a1";
-  const saveResponse = await worker.fetch(postJson("/api/memory/" + memoryId, {
-    summary: "The user is building a persistent live assistant."
+  const saveResponse = await worker.fetch(new Request("https://example.test/api/memory/" + memoryId, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Origin: "https://example.test" },
+    body: JSON.stringify({ summary: "The user is building a persistent live assistant." })
   }), env({ MEMORY_DB: db }));
   assert.equal(saveResponse.status, 200);
   assert.equal((await saveResponse.json()).saved, true);
@@ -330,8 +332,10 @@ test("D1 memory endpoint rejects invalid identifiers and oversized summaries", a
   const invalid = await worker.fetch(request("/api/memory/not-a-uuid"), env({ MEMORY_DB: {} }));
   assert.equal(invalid.status, 400);
   const memoryId = "4c6e8a92-1328-4d2f-9c30-4c3e0fc3e2a1";
-  const oversized = await worker.fetch(postJson("/api/memory/" + memoryId, {
-    summary: "x".repeat(3501)
+  const oversized = await worker.fetch(new Request("https://example.test/api/memory/" + memoryId, {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", Origin: "https://example.test" },
+    body: JSON.stringify({ summary: "x".repeat(3501) })
   }), env({ MEMORY_DB: {} }));
   assert.equal(oversized.status, 400);
 });
