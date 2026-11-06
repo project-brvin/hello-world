@@ -563,11 +563,11 @@
         }
         liveSocket.onopen = function () {
           liveReconnectDelay = 500;
-          recordLiveEvent('status', 'connected');
           const queued = liveEventQueue.splice(0, liveEventQueue.length);
           queued.forEach(function (event) {
             try { liveSocket.send(JSON.stringify(event)); } catch (e) { liveEventQueue.push(event); }
           });
+          recordLiveEvent('status', 'connected');
         };
         liveSocket.onmessage = function (event) {
           try {
