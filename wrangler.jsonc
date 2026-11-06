@@ -9,18 +9,64 @@
     "html_handling": "auto-trailing-slash",
     "not_found_handling": "single-page-application"
   },
-  "version_metadata": { "binding": "CF_VERSION_METADATA" },
+  "version_metadata": {
+    "binding": "CF_VERSION_METADATA"
+  },
   "ratelimits": [
     {
       "name": "CHAT_RATE_LIMITER",
       "namespace_id": "2026110701",
-      "simple": { "limit": 10, "period": 60 }
+      "simple": {
+        "limit": 10,
+        "period": 60
+      }
+    },
+    {
+      "name": "LIVE_SESSION_LIMITER",
+      "namespace_id": "2026110702",
+      "simple": {
+        "limit": 12,
+        "period": 60
+      }
     }
   ],
   "observability": {
     "enabled": true,
-    "logs": { "enabled": true, "invocation_logs": true, "head_sampling_rate": 1 },
-    "traces": { "enabled": true, "head_sampling_rate": 0.01 },
-    "issues": { "enabled": true }
-  }
+    "logs": {
+      "enabled": true,
+      "invocation_logs": true,
+      "head_sampling_rate": 1
+    },
+    "traces": {
+      "enabled": true,
+      "head_sampling_rate": 0.01
+    },
+    "issues": {
+      "enabled": true
+    }
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "LIVE_SESSIONS",
+        "class_name": "LiveSession"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1-live-sessions",
+      "new_sqlite_classes": [
+        "LiveSession"
+      ]
+    }
+  ],
+  "d1_databases": [
+    {
+      "binding": "MEMORY_DB",
+      "database_name": "hello-world-memory",
+      "database_id": "d0a3fb3b-eb6d-4e5c-858d-fd16d24a32e8",
+      "migrations_dir": "migrations/d1"
+    }
+  ]
 }
