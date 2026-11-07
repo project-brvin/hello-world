@@ -13,15 +13,27 @@ The durable project documentation is in [docs/README.md](docs/README.md). Start 
 - The fastest responding gateway is used for native HTML5 video playback in the current prototype.
 - No self-managed VPS, origin video server, or database is required by the initial prototype.
 
+## Prerequisites
+
+- Node.js 20 or later.
+- npm.
+
 ## Run locally
 
-Use Wrangler 4:
+Install the pinned project dependencies, then run the local Worker:
 
-    npx wrangler dev
+    npm install
+    npm run dev
+
+## Validate the deployment bundle
+
+    npm run dry-run
 
 ## Deploy
 
-    npx wrangler deploy
+    npm run deploy
+
+The project pins Wrangler in package.json so local development and deployments use the repository's declared CLI version.
 
 Worker name: gogoitv
 
@@ -36,3 +48,7 @@ Worker name: gogoitv
 ## Health
 
 GET /api/health
+
+## Documentation
+
+See [docs/README.md](docs/README.md) for milestones, test evidence and the continuation prompt.
