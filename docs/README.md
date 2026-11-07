@@ -19,8 +19,8 @@ This directory is the durable source of truth for the gogoiTV product direction,
 - Data: no application database in the first release; use a versioned static catalogue manifest and browser-local state.
 - Acceleration: optional R2/edge-cache path for authorised popular assets, evaluated only after IPFS playback works.
 - Content: only public-domain, creator-owned or properly licensed media.
-- Worker: named gogoiTV's service identifier gogoitv; independent browser verification is still pending.
-- Status: foundation prototype exists; live TMDB catalogue and real content-to-CID playback are not yet implemented.
+- Worker: gogoitv; M1 homepage and health smoke check were confirmed by the user; the newest M2 deployment needs a fresh browser check.
+- Status: M1 is complete. The TMDB discovery interface and Worker API routes are deployed (v0.2.1); live catalogue data awaits the TMDB_API_READ_ACCESS_TOKEN Worker secret. The authorised IPFS content manifest and adaptive player remain future milestones.
 
 ## Documentation maintenance rule
 
