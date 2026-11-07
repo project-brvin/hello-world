@@ -166,3 +166,14 @@ This file records decisions that should not be silently changed. A reversal requ
 ## Change procedure
 
 When a decision changes, append a new ADR with ID/date, previous and new decision, reason/evidence, trade-offs, security/cost implications and migration plan.
+
+
+## ADR-013 — Versioned IPFS media manifest with rights-gated resolution
+
+**Decision:** Maintain a versioned, static media manifest in `src/media-manifest.js`; use a Worker resolver to map a TMDB movie/TV ID to a validated IPFS asset. No database or media-byte proxy is added.
+
+**Validation rules:** A v1 playable item must be active, have a unique TMDB type/ID mapping, a supported CID and safe relative path, an HLS master playlist or MP4 MIME/path match, a bounded VOD duration, HTTPS rights evidence, a supported rights basis, worldwide rights territory, and a valid rights verification window. Invalid or expired records are omitted. Unmatched titles are explicitly non-playable.
+
+**Reason:** TMDB metadata and IPFS content addressing do not grant distribution rights. A server-side resolver prevents the frontend from treating arbitrary CIDs or guesses as authorised sources. Keeping the manifest static preserves the no-database first-release design.
+
+**Consequences:** The first manifest is intentionally empty until a real rights-cleared asset is supplied, prepared and pinned. Browser gateway retrieval and playback remain separate milestones. v1 does not serve territory-limited rights; worldwide clearance is required until geographic entitlement enforcement is designed and tested.
