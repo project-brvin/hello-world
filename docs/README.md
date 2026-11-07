@@ -8,8 +8,9 @@ This directory is the durable source of truth for the gogoiTV product direction,
 2. [Milestone roadmap](ROADMAP.md) — delivery plan, statuses, deliverables and exit criteria.
 3. [Architecture decisions](ARCHITECTURE_DECISIONS.md) — technical choices locked for the first release.
 4. [Test and release plan](TEST_PLAN.md) — how milestones are verified.
-5. [Progress log](PROGRESS_LOG.md) — implemented work, verified evidence, blockers and next action.
-6. [New-chat handoff prompt](SESSION_HANDOFF.md) — copy/paste instructions to resume work.
+5. [Content publishing guide](CONTENT_PUBLISHING.md) — how to add rights-cleared IPFS media.
+6. [Progress log](PROGRESS_LOG.md) — implemented work, verified evidence, blockers and next action.
+7. [New-chat handoff prompt](SESSION_HANDOFF.md) — copy/paste instructions to resume work.
 
 ## Current snapshot
 
@@ -19,8 +20,8 @@ This directory is the durable source of truth for the gogoiTV product direction,
 - Data: no application database in the first release; use a versioned static catalogue manifest and browser-local state.
 - Acceleration: optional R2/edge-cache path for authorised popular assets, evaluated only after IPFS playback works.
 - Content: only public-domain, creator-owned or properly licensed media.
-- Worker: gogoitv; M1 homepage and health smoke check were confirmed by the user; the newest M2 deployment needs a fresh browser check.
-- Status: M1 is complete. The TMDB discovery interface and Worker API routes are deployed (v0.2.1); live catalogue data awaits the TMDB_API_READ_ACCESS_TOKEN Worker secret. The authorised IPFS content manifest and adaptive player remain future milestones.
+- Worker: gogoitv; M1 homepage/health and current live movie/series shelves are user-confirmed.
+- Status: M0/M1 complete; M2 partial (live shelves confirmed; fuller endpoint and error-path tests pending); M3 in progress (manifest/schema/resolver deployed, but no playable assets yet).
 
 ## Documentation maintenance rule
 
