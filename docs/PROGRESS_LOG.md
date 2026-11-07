@@ -20,10 +20,11 @@ This is the factual work journal. Record implementation and verification separat
 - [x] Cloudflare Worker named gogoitv was uploaded through the Cloudflare integration.
 - [x] Initial app includes a dark glass-style landing interface, CID/path input, browser-based multi-gateway probe and native video element.
 - [x] Worker code includes GET /api/health.
-- [ ] Independently verify deployed root URL in a normal browser.
-- [ ] Independently verify deployed /api/health response.
-- [ ] Measure production frontend size.
-- [ ] Confirm current code and deployed build match the intended main-branch revision.
+- [x] User independently confirmed the deployed root URL opens and /api/health returns ok: true before M2 changes.
+- [x] Measured the embedded M1 app shell at 13,880 UTF-8 bytes.
+- [x] Confirmed Cloudflare Worker settings and 100% deployment allocation.
+- [ ] Re-check the newly deployed M2 homepage and health route in a browser.
+- [ ] Install the pinned Wrangler dependency locally and run dev/dry-run when package access is available.
 
 ### Known current limitations
 - No live TMDB catalogue or search.
@@ -98,3 +99,38 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - Complete public HTTP/browser smoke checks and local npm install/Wrangler dry-run. If those pass, mark M1 DONE and begin M2 (TMDB catalogue integration).
+
+
+### 2026-11-07 — M1 closure and M2 first delivery
+
+**M1 closure**
+- User confirmed that both the gogoiTV homepage and /api/health URL work, with health returning ok: true.
+- M1 marked DONE based on that direct user verification.
+- Local Wrangler install/preview/dry-run remains a developer workflow follow-up; the remote homepage and health smoke check was successful.
+
+**M2 implementation**
+- Replaced the static demo homepage with a live TMDB catalogue interface.
+- Added Worker routes:
+  - GET /api/catalog/trending?type=all|movie|tv&window=day|week
+  - GET /api/catalog/popular?type=movie|tv
+  - GET /api/catalog/search?q=...
+  - GET /api/catalog/details?type=movie|tv&id=...
+  - GET /api/catalog/genres?type=movie|tv|all
+  - GET /api/catalog/discover?type=movie|tv&genre=...
+- Uses TMDB API Read Access Token through the Worker secret binding TMDB_API_READ_ACCESS_TOKEN (Authorization: Bearer); token is never included in frontend code.
+- Added dynamic trending, popular movies, popular series, title search, title detail modal, cast section, genre chips and device-local My List.
+- Added a TMDB attribution statement and an official-logo asset reference in the Credits area.
+- Updated health response version to 0.2.0 and added tmdbConfigured status.
+- Deployed the updated Worker. Cloudflare accepted the upload and returned a new deployment/version.
+- Cloudflare secret listing currently returns an empty list: TMDB_API_READ_ACCESS_TOKEN is not yet configured.
+- Therefore the UI and routes are deployed, but live catalogue API calls remain gated until the user configures that secret.
+
+**Known gaps**
+- New M2 deployment needs a fresh browser smoke check by the user.
+- Live TMDB API responses cannot be verified until the secret is configured.
+- No playable IPFS sources, HLS player or authorised content manifest yet; those are later milestones.
+- Official TMDB logo image URL is referenced in the UI; actual image loading still requires browser verification.
+
+**Next action**
+- Configure TMDB_API_READ_ACCESS_TOKEN using Wrangler's secure secret prompt or the Cloudflare dashboard; do not paste the token into chat or Git.
+- Then test live trending, search, genres and details on the deployed site and complete M2 acceptance checks.
