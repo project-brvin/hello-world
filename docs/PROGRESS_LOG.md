@@ -154,3 +154,16 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - User opens the deployed site, verifies /api/health reports version 0.2.1, configures TMDB_API_READ_ACCESS_TOKEN through Wrangler's secure prompt, and reports when completed. Then run M2 live acceptance tests.
+
+
+### 2026-11-07 — Dashboard-only TMDB setup guidance
+
+**Completed**
+- User requested a no-terminal workflow for connecting the TMDB API.
+- Added dashboard-only instructions to README and new-chat handoff.
+- Documented Cloudflare path: Workers & Pages > gogoitv > Settings > Variables and Secrets > Add > Secret > TMDB_API_READ_ACCESS_TOKEN > Deploy.
+- Confirmed the Cloudflare secret list was empty before user setup.
+- Reiterated that the API Read Access Token must not be pasted into chat, GitHub, or frontend source.
+
+**Next action**
+- User completes TMDB credential registration and adds the secret using the Cloudflare dashboard. Then verify tmdbConfigured=true and test live catalogue routes.
