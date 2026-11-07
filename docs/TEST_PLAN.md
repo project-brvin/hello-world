@@ -43,6 +43,8 @@ Record browser/device, date, test asset, network profile and result for importan
 
 | Test | Expected result | Evidence/status |
 |---|---|---|
+| Cloudflare Worker upload | Both ES modules uploaded and v0.3.0 deployment receives 100% traffic | PASS — Cloudflare control plane |
+| Existing TMDB secret binding | TMDB_API_READ_ACCESS_TOKEN remains a secret_text binding after upload | PASS — Cloudflare settings checked immediately after deployment |
 | Manifest endpoint | Returns schema/version/count and a valid items array | DEPLOYED; public HTTP check pending |
 | Empty manifest behaviour | Count is 0; no title is assumed playable | EXPECTED initial state; verify in browser |
 | Unmapped TMDB title | Resolver returns playable:false and NO_RIGHTS_CLEARED_SOURCE | DEPLOYED; public HTTP check pending |
