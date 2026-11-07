@@ -58,7 +58,7 @@ Implemented Worker catalogue routes:
 - Public gateways are best-effort. A fast one-byte probe does not guarantee sustained throughput or seek support.
 - IPFS content must be pinned by one or more providers to remain available.
 - Gateway CORS and HTTP Range support vary.
-- The current first prototype accepts IPFS CIDs and media paths directly; it does not yet include the planned TMDB catalogue, authorised media manifest or HLS adaptive player.
+- The TMDB catalogue and discovery UI/API routes are implemented, but live results require the Worker secret TMDB_API_READ_ACCESS_TOKEN. An authorised media manifest, HLS adaptive player and production IPFS publishing workflow are still future milestones.
 - Use only public-domain, creator-owned, or properly licensed media.
 
 ## Health
