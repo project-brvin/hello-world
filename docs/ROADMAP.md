@@ -70,10 +70,19 @@ Locked decisions:
 
 ## M2 — TMDB catalogue and discovery
 
-**Status: NEXT**
+**Status: IN PROGRESS — 2026-11-07**
+
+### Implemented in the first M2 delivery batch
+- Added Worker API routes for trending, popular movies/TV, multi-search, movie/TV details with credits/videos, genre lists and genre discovery.
+- Added token-gated authentication using the Cloudflare secret binding `TMDB_API_READ_ACCESS_TOKEN`.
+- Added a live-data homepage with trending, popular movie and series shelves.
+- Added title search, detail modal, cast metadata, genre filtering and a device-local watchlist.
+- Added TMDB attribution notice and logo asset reference in the Credits area.
+- Deployed Worker code version 0.2.0. Cloudflare accepted the upload; live TMDB results remain unavailable until the secret is configured.
+- Confirmed through the Cloudflare secret-list API that no secrets are currently configured for this Worker.
 
 ### Work
-1. Obtain a TMDB API credential and configure it as a Cloudflare Worker secret.
+1. Create a TMDB account / request a developer API credential, then configure its API Read Access Token as a Cloudflare Worker secret named `TMDB_API_READ_ACCESS_TOKEN`.
 2. Implement Worker routes for trending/popular content, search, details and genres.
 3. Normalise API results into a stable app data shape.
 4. Add loading, empty, error and retry states.
