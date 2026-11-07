@@ -134,3 +134,23 @@ This is the factual work journal. Record implementation and verification separat
 **Next action**
 - Configure TMDB_API_READ_ACCESS_TOKEN using Wrangler's secure secret prompt or the Cloudflare dashboard; do not paste the token into chat or Git.
 - Then test live trending, search, genres and details on the deployed site and complete M2 acceptance checks.
+
+
+### 2026-11-07 — M2 collection navigation fix and deployment v0.2.1
+
+**Completed**
+- Corrected the Movies and Series navigation actions to call the dedicated TMDB popular endpoints rather than searching the literal phrases "popular movies" and "popular TV series".
+- Updated Worker health version to 0.2.1.
+- Uploaded the latest src/index.js from main to Cloudflare Worker gogoitv.
+- Cloudflare confirmed a successful upload and latest deployment allocation of 100% traffic.
+- Latest Cloudflare deployment ID: 2a103a12-7a3f-4a4a-b017-8b6c98f855a9.
+- Latest Worker version ID: 81ba4315-d68c-4f8f-a6b1-7c892fb9d89b.
+- Confirmed the TMDB secret list is still empty.
+
+**Still pending**
+- User browser check of the v0.2.1 homepage and health endpoint.
+- Add TMDB_API_READ_ACCESS_TOKEN securely.
+- Run live catalogue API and UI tests.
+
+**Next action**
+- User opens the deployed site, verifies /api/health reports version 0.2.1, configures TMDB_API_READ_ACCESS_TOKEN through Wrangler's secure prompt, and reports when completed. Then run M2 live acceptance tests.
