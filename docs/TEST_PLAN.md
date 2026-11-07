@@ -104,3 +104,37 @@ Release is blocked by:
 - Frontend production asset size.
 
 Set numeric targets only after measuring a baseline on representative devices and networks. Do not invent a "zero buffering" pass result.
+
+
+## M2 — TMDB catalogue and discovery
+
+**Implementation status:** Initial feature slice deployed; live API verification blocked pending secret configuration.
+
+### Configuration
+- Cloudflare secret name: `TMDB_API_READ_ACCESS_TOKEN`.
+- Secret must be added through Wrangler's secure prompt or the Cloudflare dashboard.
+- Never place the token in Git, browser code, query strings or chat messages.
+- Current Cloudflare secret-list response showed no Worker secrets configured.
+
+### Endpoint tests (run after secret is configured)
+
+| Test | Expected result | Status |
+|---|---|---|
+| `GET /api/catalog/trending?type=all&window=week` | Trending payload with results | BLOCKED — token missing |
+| `GET /api/catalog/popular?type=movie` | Popular movies | BLOCKED — token missing |
+| `GET /api/catalog/popular?type=tv` | Popular series | BLOCKED — token missing |
+| `GET /api/catalog/search?q=...` | Matching movie/TV results | BLOCKED — token missing |
+| `GET /api/catalog/details?type=movie&id=...` | Detail, credits and videos | BLOCKED — token missing |
+| `GET /api/catalog/genres?type=movie` | Genre list | BLOCKED — token missing |
+| `GET /api/catalog/discover?type=movie&genre=...` | Genre-filtered titles | BLOCKED — token missing |
+| Missing token behaviour | HTTP 503 with TMDB_NOT_CONFIGURED | Implemented; runtime check pending |
+| Invalid query/id/type | HTTP 400 with safe error | Implemented; runtime check pending |
+
+### UI tests (run after secret is configured)
+- Home shelves render real trending, popular movies and series.
+- Search results show movie and TV entries only.
+- Detail modal shows synopsis, metadata, backdrop and cast where supplied.
+- Genre chips load and return filtered titles.
+- My List persists on the current browser/device after reload.
+- TMDB attribution notice is visible; approved logo asset is loaded and not more prominent than gogoiTV.
+- No title is presented as playable until a rights-cleared media manifest is connected.
