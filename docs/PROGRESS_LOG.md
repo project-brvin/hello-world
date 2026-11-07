@@ -27,7 +27,7 @@ This is the factual work journal. Record implementation and verification separat
 - [ ] Install the pinned Wrangler dependency locally and run dev/dry-run when package access is available.
 
 ### Known current limitations
-- No live TMDB catalogue or search.
+- TMDB catalogue UI and Worker routes are deployed; live results await the TMDB_API_READ_ACCESS_TOKEN secret.
 - No real authorised media catalogue manifest.
 - No content publishing/pinning workflow.
 - No HLS packaging or adaptive player yet.
@@ -58,7 +58,7 @@ This is the factual work journal. Record implementation and verification separat
 - End-to-end TMDB-to-IPFS playback.
 
 **Next action**
-- Complete M1 smoke tests and asset-size baseline, then begin M2 TMDB catalogue integration.
+- Configure the TMDB API Read Access Token as a Worker secret, then complete live M2 endpoint and browser tests.
 
 ### 2026-11-07 — Clarified decentralisation model
 
