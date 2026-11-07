@@ -69,3 +69,32 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - Continue M1 verification; do not change the architecture merely to claim full decentralisation.
+
+
+### 2026-11-07 — M1 deployment and reproducibility pass
+
+**Repository changes**
+- Added package.json with pinned Wrangler 4.158.0 and npm scripts for dev, deploy and dry-run.
+- Updated README with Node.js/npm prerequisites and local commands.
+- Added .gitignore for dependencies, Wrangler state and local environment/secret files.
+- Enabled Worker logs and 10% sampled traces in wrangler.jsonc.
+- Updated the M1 status, test plan and this progress log.
+
+**Deployment**
+- Uploaded the exact src/index.js content fetched from the main branch to Cloudflare Worker gogoitv.
+- Cloudflare API returned success and created a new version (version ID: d406571a-fd6e-4862-b2b6-f523f715ab7d).
+- Latest deployment ID reported by Cloudflare: 5c2f5292-90d5-4a54-8656-32ac12b7a508.
+- Cloudflare reports 100% traffic assigned to that version.
+- Cloudflare settings confirm workers.dev subdomain enabled, compatibility date 2026-11-07, logs enabled and traces enabled with 10% head sampling.
+
+**Size measurement**
+- Inline app HTML/CSS/JS embedded in src/index.js: 13,880 UTF-8 bytes.
+- The full final Wrangler bundle has not been measured because the local dry-run/build was not completed.
+
+**Verification gaps**
+- Public root URL and /api/health were not verified from a normal browser. The available browser and container network paths could not resolve/reach the workers.dev hostname; do not treat Cloudflare's deployment response as an HTTP smoke test.
+- Node.js 22.16.0 and npm 10.9.2 are available in the local execution environment, but the pinned Wrangler package is not installed. A local Wrangler dry-run was not completed because package resolution was unavailable.
+- Browser console checks remain outstanding.
+
+**Next action**
+- Complete public HTTP/browser smoke checks and local npm install/Wrangler dry-run. If those pass, mark M1 DONE and begin M2 (TMDB catalogue integration).
