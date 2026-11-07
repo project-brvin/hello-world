@@ -16,7 +16,9 @@ Repository: https://github.com/project-brvin/hello-world
 Default branch: main  
 Cloudflare Worker name: gogoitv  
 Expected Worker URL from the previous setup: https://gogoitv.projectbrvin.workers.dev  
-Health route: https://gogoitv.projectbrvin.workers.dev/api/health
+Health route: https://gogoitv.projectbrvin.workers.dev/api/health  
+Media manifest: https://gogoitv.projectbrvin.workers.dev/api/media/manifest  
+Media resolver example: https://gogoitv.projectbrvin.workers.dev/api/media/resolve?type=movie&id=1
 
 The Worker URL is an expected address, not proof that the endpoint is currently healthy. Verify it before relying on it.
 
