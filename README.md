@@ -39,11 +39,23 @@ Worker name: gogoitv
 
 ## TMDB configuration
 
-Create a TMDB API Read Access Token in your TMDB account, then add it to the Cloudflare Worker as a secret named `TMDB_API_READ_ACCESS_TOKEN`. From a local repository terminal, run:
+Create a TMDB API Read Access Token in your TMDB account, then add it to the Cloudflare Worker as an encrypted secret.
 
-    npx wrangler secret put TMDB_API_READ_ACCESS_TOKEN
+### Dashboard setup (no terminal required)
 
-Paste the token only into Wrangler's secure prompt. Do not commit it, put it in frontend code, or paste it into project documentation. The catalogue endpoints return a clear configuration error until this secret is present.
+1. Sign in to [TMDB](https://www.themoviedb.org/) and open Profile > Settings > API.
+2. Request an API credential if needed, then copy the **API Read Access Token**.
+3. Sign in to the [Cloudflare dashboard](https://dash.cloudflare.com/).
+4. Open **Workers & Pages** and select the **gogoitv** Worker.
+5. Open **Settings** and find **Variables and Secrets**.
+6. Select **Add**, choose type **Secret**, and enter the exact variable name `TMDB_API_READ_ACCESS_TOKEN`.
+7. Paste the token into the Value field and select **Deploy** to apply the secret.
+
+Cloudflare hides the stored secret value after saving. Never place it in Git, frontend code, public messages or project documentation. The catalogue endpoints return a clear configuration error until this secret is present.
+
+### Optional terminal alternative
+
+If you prefer Wrangler, run `npx wrangler secret put TMDB_API_READ_ACCESS_TOKEN` from the repository and enter the token only into its secure prompt.
 
 Implemented Worker catalogue routes:
 - `/api/catalog/trending?type=all&window=week`
