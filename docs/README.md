@@ -21,7 +21,7 @@ This directory is the durable source of truth for the gogoiTV product direction,
 - Acceleration: optional R2/edge-cache path for authorised popular assets, evaluated only after IPFS playback works.
 - Content: only public-domain, creator-owned or properly licensed media.
 - Worker: gogoitv; M1 homepage/health and current live movie/series shelves are user-confirmed.
-- Status: M0/M1 complete; M2 partial (live shelves confirmed; fuller endpoint and error-path tests pending); M3 in progress (manifest/schema/resolver deployed, but no playable assets yet).
+- Status: M0/M1 complete; M2 partial (live shelves confirmed; fuller endpoint and error-path tests pending); M3 in progress (v0.3.0 manifest/schema/resolver deployed, but no playable assets yet).
 
 ## Documentation maintenance rule
 
