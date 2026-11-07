@@ -11,6 +11,7 @@ This is the factual work journal. Record implementation and verification separat
 - [x] First-release database-free approach locked.
 - [x] Rights-cleared VOD-only publishing guardrail locked.
 - [x] Milestone roadmap and release-test method documented.
+- [x] Product accurately classified as a hybrid decentralised streaming platform, not a fully decentralised application; recorded in ADR-012.
 
 ### Repository and deployment work completed previously
 - [x] Repository: project-brvin/hello-world, branch main.
@@ -58,14 +59,13 @@ This is the factual work journal. Record implementation and verification separat
 **Next action**
 - Complete M1 smoke tests and asset-size baseline, then begin M2 TMDB catalogue integration.
 
-## How to append future entries
+### 2026-11-07 — Clarified decentralisation model
 
-For each work session, append a dated heading with:
-- Objective.
-- Files/code changed.
-- Tests actually run and results.
-- Commit/deployment reference if available.
-- Known issues or blockers.
-- Exact next action.
+**Completed**
+- Explained that IPFS content addressing and peer-to-peer retrieval are decentralised components.
+- Clarified that GitHub/Cloudflare app hosting, Worker API routing, TMDB metadata, the first static catalogue manifest and public HTTP gateway operators remain service dependencies.
+- Locked the product description as **hybrid decentralised streaming platform**, not fully decentralised application.
+- Added ADR-012 documenting the distinction and a possible future evaluation of browser-native IPFS retrieval (e.g. Helia), without adding it to the MVP.
 
-Update ROADMAP.md in the same documentation batch when a milestone changes. Keep claims precise: implemented, uploaded, deployed and verified in browser are different states.
+**Next action**
+- Continue M1 verification; do not change the architecture merely to claim full decentralisation.
