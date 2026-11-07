@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://gogoitv.example/schemas/media-manifest.v1.schema.json",
+  "title": "gogoiTV Media Manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "version",
+    "updatedAt",
+    "items"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "version": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "updatedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "active",
+          "title",
+          "tmdb",
+          "rights",
+          "media"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{2,63}$"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 180
+          },
+          "tmdb": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "type",
+              "id"
+            ],
+            "properties": {
+              "type": {
+                "enum": [
+                  "movie",
+                  "tv"
+                ]
+              },
+              "id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            }
+          },
+          "rights": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "status",
+              "basis",
+              "evidenceUrl",
+              "territories",
+              "verifiedAt"
+            ],
+            "properties": {
+              "status": {
+                "const": "cleared"
+              },
+              "basis": {
+                "enum": [
+                  "public-domain",
+                  "creator-owned",
+                  "licensed"
+                ]
+              },
+              "evidenceUrl": {
+                "type": "string",
+                "format": "uri",
+                "pattern": "^https://"
+              },
+              "territories": {
+                "type": "array",
+                "minItems": 1,
+                "contains": {
+                  "const": "worldwide"
+                },
+                "items": {
+                  "type": "string"
+                }
+              },
+              "verifiedAt": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "validFrom": {
+                "type": "string",
+                "format": "date-time"
+              },
+              "validUntil": {
+                "type": "string",
+                "format": "date-time"
+              }
+            }
+          },
+          "media": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "protocol",
+              "cid",
+              "path",
+              "mimeType",
+              "durationSeconds"
+            ],
+            "properties": {
+              "protocol": {
+                "enum": [
+                  "hls",
+                  "mp4"
+                ]
+              },
+              "cid": {
+                "type": "string",
+                "pattern": "^(Qm[1-9A-HJ-NP-Za-km-z]{44}|b[a-z2-7]{20,})$"
+              },
+              "path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 512,
+                "pattern": "^[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*$"
+              },
+              "mimeType": {
+                "enum": [
+                  "application/vnd.apple.mpegurl",
+                  "video/mp4"
+                ]
+              },
+              "durationSeconds": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 86400
+              },
+              "sizeBytes": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[A-Fa-f0-9]{64}$"
+              },
+              "audioLanguages": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "string",
+                  "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$"
+                }
+              },
+              "subtitles": {
+                "type": "array",
+                "maxItems": 20,
+                "items": {
+                  "type": "object",
+                  "additionalProperties": false,
+                  "required": [
+                    "language",
+                    "label",
+                    "path",
+                    "mimeType"
+                  ],
+                  "properties": {
+                    "language": {
+                      "type": "string",
+                      "pattern": "^[a-z]{2,3}(-[A-Z]{2})?$"
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 80
+                    },
+                    "path": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 512,
+                      "pattern": "^[A-Za-z0-9._~-]+(/[A-Za-z0-9._~-]+)*$"
+                    },
+                    "mimeType": {
+                      "const": "text/vtt"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
