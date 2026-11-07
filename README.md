@@ -9,8 +9,8 @@ The durable project documentation is in [docs/README.md](docs/README.md). Start 
 ## Architecture
 
 - Cloudflare Worker serves the static application and application APIs (no application database).
-- Browser checks multiple public IPFS HTTP gateways in parallel using a small HTTP Range request.
-- The fastest responding gateway is used for native HTML5 video playback in the current prototype.
+- IPFS CIDs and a versioned static media manifest identify rights-cleared assets.
+- The browser will retrieve media directly from IPFS HTTP gateways; gateway selection and the HLS/MP4 player are later milestones.
 - No self-managed VPS, origin video server, or database is required by the initial prototype.
 
 ## Prerequisites
@@ -70,8 +70,16 @@ Implemented Worker catalogue routes:
 - Public gateways are best-effort. A fast one-byte probe does not guarantee sustained throughput or seek support.
 - IPFS content must be pinned by one or more providers to remain available.
 - Gateway CORS and HTTP Range support vary.
-- The TMDB catalogue and discovery UI/API routes are implemented, but live results require the Worker secret TMDB_API_READ_ACCESS_TOKEN. An authorised media manifest, HLS adaptive player and production IPFS publishing workflow are still future milestones.
+- The TMDB catalogue is live after the Worker secret TMDB_API_READ_ACCESS_TOKEN was configured. M3 now includes a versioned IPFS media manifest and rights-checked resolver; it currently contains zero playable entries until authorised assets are published. HLS/MP4 playback and gateway failover are later milestones.
 - Use only public-domain, creator-owned, or properly licensed media.
+
+## Media manifest API
+
+- GET /api/media/manifest
+- GET /api/media/resolve?type=movie&id=TMDB_ID
+- GET /api/media/resolve?type=tv&id=TMDB_ID
+
+See [docs/CONTENT_PUBLISHING.md](docs/CONTENT_PUBLISHING.md) before adding any media. A TMDB listing is not a distribution licence.
 
 ## Health
 
