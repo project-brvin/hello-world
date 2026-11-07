@@ -37,6 +37,22 @@ The project pins Wrangler in package.json so local development and deployments u
 
 Worker name: gogoitv
 
+## TMDB configuration
+
+Create a TMDB API Read Access Token in your TMDB account, then add it to the Cloudflare Worker as a secret named `TMDB_API_READ_ACCESS_TOKEN`. From a local repository terminal, run:
+
+    npx wrangler secret put TMDB_API_READ_ACCESS_TOKEN
+
+Paste the token only into Wrangler's secure prompt. Do not commit it, put it in frontend code, or paste it into project documentation. The catalogue endpoints return a clear configuration error until this secret is present.
+
+Implemented Worker catalogue routes:
+- `/api/catalog/trending?type=all&window=week`
+- `/api/catalog/popular?type=movie` or `type=tv`
+- `/api/catalog/search?q=...`
+- `/api/catalog/details?type=movie&id=...` or `type=tv`
+- `/api/catalog/genres?type=movie`
+- `/api/catalog/discover?type=movie&genre=...`
+
 ## Important limitations
 
 - Public gateways are best-effort. A fast one-byte probe does not guarantee sustained throughput or seek support.
