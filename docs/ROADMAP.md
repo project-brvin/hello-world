@@ -1,6 +1,6 @@
 # gogoiTV — Milestone Roadmap
 
-**Status key:** DONE = implemented and verified; PARTIAL = implementation exists but exit criteria remain; NEXT = next active milestone; TODO = not started; BLOCKED = required external input missing.  
+**Status key:** DONE = exit criteria met; IN PROGRESS = active work; PARTIAL = implementation exists but an earlier phase's criteria remain; NEXT = upcoming; TODO = not started; BLOCKED = required external input missing.  
 **Last updated:** 2026-11-07
 
 ## Milestone overview
@@ -81,14 +81,14 @@ Locked decisions:
 - Deployed Worker code version 0.2.0. Cloudflare accepted the upload; live TMDB results remain unavailable until the secret is configured.
 - Confirmed through the Cloudflare secret-list API that no secrets are currently configured for this Worker.
 
-### Work
-1. Create a TMDB account / request a developer API credential, then configure its API Read Access Token as a Cloudflare Worker secret named `TMDB_API_READ_ACCESS_TOKEN`.
-2. Implement Worker routes for trending/popular content, search, details and genres.
-3. Normalise API results into a stable app data shape.
-4. Add loading, empty, error and retry states.
-5. Build homepage rows, search and a detail page/panel.
-6. Add movie/TV and anime-oriented discovery filters only where metadata supports them.
-7. Review current TMDB attribution, branding and API terms.
+### Remaining work
+1. Create/request a TMDB developer credential and configure its API Read Access Token as the Worker secret `TMDB_API_READ_ACCESS_TOKEN`.
+2. Verify the newly deployed homepage and health response in a browser.
+3. Exercise trending, popular movie/TV, search, details, genres and discovery endpoints against live TMDB.
+4. Validate loading, empty, error, retry, invalid-parameter and upstream rate-limit behaviour.
+5. Review the official TMDB logo asset loads correctly, and confirm the attribution is visible in the app's Credits area.
+6. Add movie/TV/anime-oriented navigation and filters only where TMDB metadata supports them.
+7. Confirm the frontend bundle contains no TMDB credential and record API behaviour/performance evidence.
 
 **Exit criteria**
 - Homepage displays live TMDB results, not hard-coded demo cards.
