@@ -167,3 +167,29 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - User completes TMDB credential registration and adds the secret using the Cloudflare dashboard. Then verify tmdbConfigured=true and test live catalogue routes.
+
+
+### 2026-11-07 — M2 live catalogue confirmation and M3 manifest/resolver delivery
+
+**M2 evidence**
+- User configured `TMDB_API_READ_ACCESS_TOKEN` in Cloudflare Dashboard as a Worker secret.
+- Cloudflare secret listing confirms the name and `secret_text` type; the value was not retrieved or exposed.
+- User confirms the gogoiTV homepage now displays movie and series tiles.
+- M2 is recorded as PARTIAL rather than DONE because search, detail, genre, attribution and upstream failure cases have not all been independently checked.
+
+**M3 repository implementation**
+- Added `src/media-manifest.js` as a versioned static manifest module. It deliberately contains zero media entries until an authorised asset is supplied.
+- Added `docs/media-manifest.schema.json` and `docs/CONTENT_PUBLISHING.md`.
+- Added runtime validation for CIDv0/base32 CIDv1, safe relative path segments, HLS/MP4 path and MIME agreement, VOD duration, rights basis, HTTPS evidence, worldwide territory and rights validity dates.
+- Added duplicate active TMDB mapping exclusion.
+- Added `GET /api/media/manifest` and `GET /api/media/resolve?type=movie|tv&id=...`. Media API routes do not require TMDB credentials.
+- Detail view now checks whether a rights-cleared manifest source exists and does not imply a title is playable when it is not.
+- Fixed local watchlist TV type recognition and filtered people out of the trending movie/TV shelf.
+
+**Deployment/verification**
+- Deployment uses a separate ES module for the static manifest and must inherit the existing `TMDB_API_READ_ACCESS_TOKEN` secret binding.
+- Public HTTP checks for the new media endpoints remain pending; the web retrieval path could not fetch the workers.dev hostname in this session.
+- The first M3 exit criterion is not yet satisfied: there is no real authorised IPFS asset/CID in the manifest.
+
+**Next action**
+- Obtain one public-domain, creator-owned or properly licensed VOD asset with worldwide distribution rights; prepare HLS/MP4, pin it to IPFS, and add its genuine CID/path, TMDB ID and public HTTPS rights evidence following `docs/CONTENT_PUBLISHING.md`.
