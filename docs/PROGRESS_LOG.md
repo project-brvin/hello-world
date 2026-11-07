@@ -187,7 +187,9 @@ This is the factual work journal. Record implementation and verification separat
 - Fixed local watchlist TV type recognition and filtered people out of the trending movie/TV shelf.
 
 **Deployment/verification**
-- Deployment uses a separate ES module for the static manifest and must inherit the existing `TMDB_API_READ_ACCESS_TOKEN` secret binding.
+- Uploaded both `src/index.js` and `src/media-manifest.js` as ES modules using Cloudflare's multi-module Worker upload API.
+- Inherited the existing `TMDB_API_READ_ACCESS_TOKEN` binding with strict binding inheritance; a post-deployment secret-list/settings check confirms it remains attached as `secret_text`.
+- Cloudflare reports app version 0.3.0, Worker version ID `34c75251-aa1c-4ef1-9e5a-1bce997dfb07`, deployment ID `11c85ccc-ed72-43fa-a018-dd3250eb87a0`, 100% traffic allocation and startup time 1 ms.
 - Public HTTP checks for the new media endpoints remain pending; the web retrieval path could not fetch the workers.dev hostname in this session.
 - The first M3 exit criterion is not yet satisfied: there is no real authorised IPFS asset/CID in the manifest.
 
