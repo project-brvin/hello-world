@@ -31,19 +31,25 @@ Record browser/device, date, test asset, network profile and result for importan
 
 ## M2 — TMDB discovery
 
-- Trending/popular endpoints return valid results.
-- Search handles normal query, empty query, no results, rate limit and upstream failure.
-- Detail panel shows correct item and image fallbacks.
-- TMDB credential is absent from built JS, HTML, Git-tracked source and browser query strings.
-- Attribution and current API terms are reviewed.
+| Test | Expected result | Evidence/status |
+|---|---|---|
+| Worker secret configured | TMDB_API_READ_ACCESS_TOKEN exists as secret_text binding | PASS — Cloudflare secret list confirms binding exists; value remains hidden |
+| Live homepage shelves | Movie and series tiles render from TMDB | USER-CONFIRMED PASS — user reports tiles now appear |
+| Search/details/genres/error states | All expected responses and fallbacks | PENDING — not independently exercised in this session |
+| Credential exposure | No token in frontend/source/query strings | REVIEW PENDING |
+| TMDB attribution/logo | Attribution visible and logo loads | BROWSER REVIEW PENDING |
 
 ## M3 — Content and IPFS
 
-- Manifest validates against its schema.
-- TMDB ID maps to an authorised asset, not merely an arbitrary CID.
-- CID/path opens on configured gateways where supported.
-- Missing CID, invalid path, unavailable pin and unsupported file are reported as unavailable.
-- Rights/source evidence is recorded for every playable test asset.
+| Test | Expected result | Evidence/status |
+|---|---|---|
+| Manifest endpoint | Returns schema/version/count and a valid items array | DEPLOYED; public HTTP check pending |
+| Empty manifest behaviour | Count is 0; no title is assumed playable | EXPECTED initial state; verify in browser |
+| Unmapped TMDB title | Resolver returns playable:false and NO_RIGHTS_CLEARED_SOURCE | DEPLOYED; public HTTP check pending |
+| Invalid resolver parameters | HTTP 400 with INVALID_PARAMS | DEPLOYED; public HTTP check pending |
+| Rights/CID/path validation | Invalid, expired, duplicate or non-worldwide records are excluded | Implemented; requires fixture-based runtime tests |
+| Real authorised content | At least one TMDB mapping resolves to a real pinned CID/path | BLOCKED — no rights-cleared test asset supplied/published |
+| Multi-gateway retrieval | Same asset is retrievable through two independent gateways | BLOCKED — requires a real pinned asset; M5 selection is not implemented yet |
 
 ## M4 — Player
 
