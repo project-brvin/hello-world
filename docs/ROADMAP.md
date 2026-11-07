@@ -78,7 +78,7 @@ Locked decisions:
 - Added a live-data homepage with trending, popular movie and series shelves.
 - Added title search, detail modal, cast metadata, genre filtering and a device-local watchlist.
 - Added TMDB attribution notice and logo asset reference in the Credits area.
-- Deployed Worker code version 0.2.0. Cloudflare accepted the upload; live TMDB results remain unavailable until the secret is configured.
+- Deployed Worker code version 0.2.1 (latest deployment has 100% traffic allocation). Cloudflare accepted the upload; live TMDB results remain unavailable until the secret is configured.
 - Confirmed through the Cloudflare secret-list API that no secrets are currently configured for this Worker.
 
 ### Remaining work
