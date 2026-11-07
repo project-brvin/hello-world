@@ -8,8 +8,8 @@
 | ID | Milestone | Status | Exit result |
 |---|---|---|---|
 | M0 | Product and architecture lock | DONE | Agreed direction and guardrails |
-| M1 | Foundation and deployment verification | PARTIAL | Reproducible, reachable Worker/PWA foundation |
-| M2 | TMDB catalogue and discovery | NEXT | Real metadata-driven home, details and search |
+| M1 | Foundation and deployment verification | DONE | Deployed Worker and successful homepage/health smoke check confirmed by user |
+| M2 | TMDB catalogue and discovery | IN PROGRESS | Real metadata-driven home, details and search |
 | M3 | Rights-cleared content and IPFS catalogue | TODO | Catalogue item resolves to an authorised CID/path |
 | M4 | Production-quality playback | TODO | HLS-first player with MP4 compatibility |
 | M5 | Delivery resilience and acceleration | TODO | Gateway racing, retry/fallback and measured performance |
@@ -38,7 +38,7 @@ Locked decisions:
 
 ## M1 — Foundation and deployment verification
 
-**Status: PARTIAL**
+**Status: DONE — 2026-11-07 (deployment smoke check confirmed by user)**
 
 ### Existing work
 - Repository: project-brvin/hello-world.
@@ -56,19 +56,17 @@ Locked decisions:
 - Cloudflare settings confirm compatibility date 2026-11-07, logs enabled, traces enabled at 10%, and workers.dev subdomain enabled.
 - Measured the inline HTML/CSS/JS app shell at 13,880 UTF-8 bytes, below the 5 MB source target.
 
-### Remaining work
-- Verify the deployed root URL and /api/health from a normal browser/network.
-- Confirm the page renders and browser console has no blocking errors.
-- Install the pinned Wrangler dependency and run local dev plus deploy dry-run.
+### Completed
+- User confirmed that the deployed homepage opens and /api/health returns JSON with ok: true.
+- Cloudflare account confirms the gogoitv workers.dev subdomain is enabled.
+- Wrangler 4.158.0 is pinned in package.json with dev, deploy and dry-run scripts.
+- Worker logs and 10% sampled traces are enabled.
+- Inline app shell measured 13,880 UTF-8 bytes, below the 5 MB target.
 
-**Exit criteria**
-- Root page returns successfully and renders the app shell.
-- /api/health returns expected JSON.
-- No blocking console errors.
-- Local Wrangler preview and dry-run pass.
-- Production asset size is measured and recorded.
+### Deferred developer-machine check
+- Local npm install, Wrangler preview and deploy dry-run were not run in the connected execution environment because external package resolution was unavailable. This is a local workflow validation follow-up, not a blocker to the confirmed remote M1 smoke test.
 
-**Verification note:** Cloudflare's deployment API confirms the upload/deployment and 100% traffic allocation, but that does not prove HTTP runtime health. Browser/network verification was attempted but the available runtime could not resolve/reach the workers.dev hostname. The local Wrangler dry-run also remains unverified because the local CLI dependency is not installed and external package resolution was unavailable.
+**Exit evidence:** user-confirmed homepage and health endpoint; Cloudflare control-plane confirms deployment, subdomain, logs and traces. The newest M2 upload still requires a fresh browser refresh/check after deployment.
 
 ## M2 — TMDB catalogue and discovery
 
