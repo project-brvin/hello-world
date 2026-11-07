@@ -2,37 +2,37 @@
 
 A minimalist, dark glass-inspired streaming interface built around IPFS content addressing.
 
+## Project handbook
+
+The durable project documentation is in [docs/README.md](docs/README.md). Start there for the approved product charter, milestone roadmap, architecture decisions, test plan, progress log and new-chat handoff prompt.
+
 ## Architecture
 
-- Cloudflare Worker serves the static application (no application database).
+- Cloudflare Worker serves the static application and application APIs (no application database).
 - Browser checks multiple public IPFS HTTP gateways in parallel using a small HTTP Range request.
-- The fastest responding gateway is used for native HTML5 video playback.
-- No self-managed VPS, origin video server, or database is required.
+- The fastest responding gateway is used for native HTML5 video playback in the current prototype.
+- No self-managed VPS, origin video server, or database is required by the initial prototype.
 
 ## Run locally
 
-Use Wrangler 4 (already familiar to this repository):
+Use Wrangler 4:
 
-```sh
-npx wrangler dev
-```
+    npx wrangler dev
 
 ## Deploy
 
-```sh
-npx wrangler deploy
-```
+    npx wrangler deploy
 
-Worker name: `gogoitv`
+Worker name: gogoitv
 
 ## Important limitations
 
 - Public gateways are best-effort. A fast one-byte probe does not guarantee sustained throughput or seek support.
 - IPFS content must be pinned by one or more providers to remain available.
 - Gateway CORS and HTTP Range support vary.
-- This first release accepts IPFS CIDs and media paths directly; it does not include a TMDB catalogue or HLS transcoding.
+- The current first prototype accepts IPFS CIDs and media paths directly; it does not yet include the planned TMDB catalogue, authorised media manifest or HLS adaptive player.
 - Use only public-domain, creator-owned, or properly licensed media.
 
 ## Health
 
-`GET /api/health`
+GET /api/health
