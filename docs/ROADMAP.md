@@ -78,8 +78,7 @@ Locked decisions:
 - Added a live-data homepage with trending, popular movie and series shelves.
 - Added title search, detail modal, cast metadata, genre filtering and a device-local watchlist.
 - Added TMDB attribution notice and logo asset reference in the Credits area.
-- Deployed Worker code version 0.2.1 (latest deployment has 100% traffic allocation). Cloudflare accepted the upload; live TMDB results remain unavailable until the secret is configured.
-- Confirmed through the Cloudflare secret-list API that no secrets are currently configured for this Worker.
+- Deployed Worker code version 0.2.1; the TMDB API Read Access Token is now configured as a Worker secret and the user confirms live movie/series tiles render.
 
 ### Evidence and remaining work
 - The user configured `TMDB_API_READ_ACCESS_TOKEN` as a Cloudflare Secret and confirms the homepage now displays movie and series tiles.
@@ -94,7 +93,7 @@ Locked decisions:
 - API credentials are absent from frontend bundles and committed source.
 - Upstream failure does not crash the whole page.
 
-**Required input:** TMDB account/API credential. Configure it as a Worker secret; do not paste it into source code or documentation.
+**Remaining evidence:** complete the search, detail, attribution and upstream-failure browser checks. Keep the existing TMDB token in its Cloudflare Secret binding.
 
 ## M3 — Rights-cleared content and IPFS catalogue
 
