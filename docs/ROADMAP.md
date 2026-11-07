@@ -46,19 +46,29 @@ Locked decisions:
 - Wrangler configuration and Worker health route were added.
 - CID/path input, prototype gateway checks and native video element were added.
 
+### Completed in this M1 pass
+- Added package.json with pinned Wrangler 4.158.0 and dev/deploy/dry-run scripts.
+- Updated README with Node/npm prerequisites and the reproducible local workflow.
+- Added .gitignore rules for node_modules, Wrangler state, .dev.vars and environment files.
+- Enabled Worker logs and 10% sampled traces in wrangler.jsonc.
+- Uploaded the exact src/index.js fetched from main to the existing Cloudflare Worker gogoitv.
+- Cloudflare API accepted the upload and reported a new version assigned 100% of traffic.
+- Cloudflare settings confirm compatibility date 2026-11-07, logs enabled, traces enabled at 10%, and workers.dev subdomain enabled.
+- Measured the inline HTML/CSS/JS app shell at 13,880 UTF-8 bytes, below the 5 MB source target.
+
 ### Remaining work
-- Verify the deployed root URL and /api/health in a real browser.
-- Confirm the root page renders and browser console has no blocking errors.
-- Confirm main branch files match the intended Worker configuration.
-- Establish repeatable local preview/deploy workflow.
-- Measure the production frontend size and record evidence.
+- Verify the deployed root URL and /api/health from a normal browser/network.
+- Confirm the page renders and browser console has no blocking errors.
+- Install the pinned Wrangler dependency and run local dev plus deploy dry-run.
 
 **Exit criteria**
 - Root page returns successfully and renders the app shell.
 - /api/health returns expected JSON.
 - No blocking console errors.
-- Local Wrangler preview works from documented commands.
-- Production asset size is measured.
+- Local Wrangler preview and dry-run pass.
+- Production asset size is measured and recorded.
+
+**Verification note:** Cloudflare's deployment API confirms the upload/deployment and 100% traffic allocation, but that does not prove HTTP runtime health. Browser/network verification was attempted but the available runtime could not resolve/reach the workers.dev hostname. The local Wrangler dry-run also remains unverified because the local CLI dependency is not installed and external package resolution was unavailable.
 
 ## M2 — TMDB catalogue and discovery
 
