@@ -9,8 +9,8 @@
 |---|---|---|---|
 | M0 | Product and architecture lock | DONE | Agreed direction and guardrails |
 | M1 | Foundation and deployment verification | DONE | Deployed Worker and successful homepage/health smoke check confirmed by user |
-| M2 | TMDB catalogue and discovery | IN PROGRESS | Real metadata-driven home, details and search |
-| M3 | Rights-cleared content and IPFS catalogue | TODO | Catalogue item resolves to an authorised CID/path |
+| M2 | TMDB catalogue and discovery | PARTIAL | User confirms live movie/series shelves; search/detail/error-path coverage remains |
+| M3 | Rights-cleared content and IPFS catalogue | IN PROGRESS | Versioned manifest and rights-checked resolver deployed; first real authorised CID still needed |
 | M4 | Production-quality playback | TODO | HLS-first player with MP4 compatibility |
 | M5 | Delivery resilience and acceleration | TODO | Gateway racing, retry/fallback and measured performance |
 | M6 | PWA and student experience polish | TODO | Installable, responsive product with useful local state |
@@ -70,7 +70,7 @@ Locked decisions:
 
 ## M2 — TMDB catalogue and discovery
 
-**Status: IN PROGRESS — 2026-11-07**
+**Status: PARTIAL — 2026-11-07**
 
 ### Implemented in the first M2 delivery batch
 - Added Worker API routes for trending, popular movies/TV, multi-search, movie/TV details with credits/videos, genre lists and genre discovery.
@@ -81,14 +81,11 @@ Locked decisions:
 - Deployed Worker code version 0.2.1 (latest deployment has 100% traffic allocation). Cloudflare accepted the upload; live TMDB results remain unavailable until the secret is configured.
 - Confirmed through the Cloudflare secret-list API that no secrets are currently configured for this Worker.
 
-### Remaining work
-1. Create/request a TMDB developer credential and configure its API Read Access Token as the Worker secret `TMDB_API_READ_ACCESS_TOKEN`.
-2. Verify the newly deployed homepage and health response in a browser.
-3. Exercise trending, popular movie/TV, search, details, genres and discovery endpoints against live TMDB.
-4. Validate loading, empty, error, retry, invalid-parameter and upstream rate-limit behaviour.
-5. Review the official TMDB logo asset loads correctly, and confirm the attribution is visible in the app's Credits area.
-6. Add movie/TV/anime-oriented navigation and filters only where TMDB metadata supports them.
-7. Confirm the frontend bundle contains no TMDB credential and record API behaviour/performance evidence.
+### Evidence and remaining work
+- The user configured `TMDB_API_READ_ACCESS_TOKEN` as a Cloudflare Secret and confirms the homepage now displays movie and series tiles.
+- The code continues to keep the token in the Worker environment; it is not embedded in the frontend.
+- Search, title details, genre/discovery and upstream error behaviour still need a complete browser test pass.
+- TMDB attribution/logo appearance still needs browser review.
 
 **Exit criteria**
 - Homepage displays live TMDB results, not hard-coded demo cards.
@@ -101,19 +98,25 @@ Locked decisions:
 
 ## M3 — Rights-cleared content and IPFS catalogue
 
-**Status: TODO**
+**Status: IN PROGRESS — 2026-11-07 (manifest/resolver foundation deployed; awaiting first authorised asset)**
 
-### Work
-1. Define and validate a content manifest schema.
-2. Select a small test set of media gogoiTV is authorised to distribute.
-3. Prepare browser-compatible MP4 and/or HLS renditions.
-4. Publish files, playlists and segments to IPFS.
-5. Pin content through one or more providers or an operator-controlled node.
-6. Add CID, media path, media type, duration, subtitles/audio metadata and rights/source notes to the manifest.
-7. Connect TMDB IDs to manifest entries.
-8. Make unavailable or unlicensed titles non-playable rather than guessing a source.
+### Implemented in this pass
+- Added a separate, versioned static manifest module at `src/media-manifest.js` (currently empty; no media is fabricated).
+- Added the v1 JSON Schema and a browser-dashboard publishing guide.
+- Added runtime checks for CID format, safe relative paths, media protocol/MIME, VOD duration, HTTPS rights evidence, worldwide territory and rights validity dates.
+- Duplicate active TMDB mappings and invalid/expired records are excluded.
+- Added `GET /api/media/manifest` and `GET /api/media/resolve?type=movie|tv&id=...`.
+- Media endpoints do not depend on the TMDB secret; unmatched titles explicitly resolve to `playable: false`.
+- Title details now check the authorised-source resolver and explain when a title is not playable.
 
-**Exit criteria**
+### Remaining work
+1. Identify at least one public-domain, creator-owned or properly licensed VOD title with worldwide distribution rights.
+2. Prepare an HLS or MP4 rendition and publish/pin it to IPFS.
+3. Add its genuine CID/path, TMDB mapping and public rights evidence to the manifest.
+4. Verify manifest validation, resolver responses and retrieval over more than one gateway.
+5. Record pinning provider, retention responsibility and limits/costs.
+
+**Exit criteria (not yet met)**
 - At least one rights-cleared title resolves from a TMDB item to a valid IPFS CID/path.
 - Manifest passes schema validation.
 - Content can be retrieved from more than one configured gateway where supported.
