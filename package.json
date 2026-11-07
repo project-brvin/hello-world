@@ -1,0 +1,17 @@
+{
+  "name": "gogoitv",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "dry-run": "wrangler deploy --dry-run"
+  },
+  "devDependencies": {
+    "wrangler": "4.158.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}
