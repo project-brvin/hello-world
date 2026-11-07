@@ -18,6 +18,33 @@ This file records decisions that should not be silently changed. A reversal requ
       rights-cleared popular media → R2 hot mirror / edge cache
       IPFS remains the canonical content-addressed source of record.
 
+## ADR-012 — Describe the product as a hybrid decentralised streaming platform
+
+**Decision:** gogoiTV's first release is a hybrid decentralised streaming platform, not a fully decentralised application.
+
+**Decentralised component:**
+- Video assets are content-addressed by IPFS CIDs.
+- IPFS can locate providers through distributed routing and retrieve content from peers.
+- Content can be replicated across independent pinning providers and IPFS nodes.
+- Content identity is not tied to one fixed origin URL.
+
+**Centralised or provider-dependent components in the first release:**
+- The website/app shell is published through GitHub/Cloudflare.
+- Application API routing and protected secrets use a Cloudflare Worker.
+- Discovery metadata comes from TMDB.
+- The first-release catalogue manifest is maintained in the Git repository.
+- Browser playback uses public HTTP gateways, which are individual service operators and can become availability or performance dependencies.
+- Optional R2 acceleration is a centralised edge/storage service.
+
+**Reason:** This hybrid model prioritises a simple, fast, installable experience for ordinary mobile browsers while retaining IPFS as the canonical content-addressed media layer.
+
+**Consequences:**
+- Do not market the first release as "fully decentralised" or claim that every component is peer-to-peer.
+- Describe it as "IPFS-powered" or "hybrid decentralised" and explain that app hosting, catalogue discovery and HTTP gateway access still depend on service providers.
+- Multiple independent pinning providers and gateways reduce reliance on any one provider but do not eliminate all trust or availability dependencies.
+- A future, separately scoped enhancement may evaluate a browser-native IPFS client such as Helia to retrieve content over peer-to-peer protocols without relying exclusively on HTTP gateways. This is not part of the initial MVP and must be tested for browser connectivity, performance, mobile data/battery use and user experience before adoption.
+- Full decentralisation of catalogue updates, naming, discovery and application hosting would require additional design (for example, distributed naming/indexing and a community-operated content/provider ecosystem); it is not implied by using IPFS CIDs.
+
 ## ADR-001 — IPFS is the canonical media source
 
 **Decision:** Use IPFS CIDs for canonical locations of rights-cleared media assets.
