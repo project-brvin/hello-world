@@ -107,3 +107,20 @@ The product will aim to provide:
 **A user searches a real title, opens its details, presses Play, and watches a rights-cleared asset referenced by an IPFS CID using adaptive or compatible playback, with a graceful recovery path if the first gateway fails.**
 
 This flow must work on a representative Android phone and a normal, imperfect network before the MVP is called ready.
+
+
+## 9. Updated locked playback architecture — 2026-11-09
+
+This section supersedes any earlier statement that every title must first be uploaded and pinned by the project operator or that IPFS alone is the primary playback transport.
+
+- **Viewer promise:** anyone with a supported current Google Chrome browser can open gogoiTV and watch in-page, without a desktop torrent app, extension or installation.
+- **Primary P2P transport:** browser WebTorrent over WebRTC, using compatible browser peers and progressive media-piece delivery.
+- **IPFS:** retained as an additional content-addressed source transport. It is not assumed to automatically contain or discover every film.
+- **Source registry:** versioned, static, transport-neutral, and rights-gated. It records approved WebTorrent, IPFS and explicitly approved HTTPS sources. No application database is required initially.
+- **No operator upload requirement for every title:** a title can be served by authorised participating peers. The project still needs a lawful source and a compatible peer/provider for that title.
+- **Chrome limitation:** ordinary BitTorrent TCP/µTP peers are not directly browser-compatible. WebTorrent peers need WebRTC support or a deliberate bridge. Browser sharing is best-effort while the page is active.
+- **Fallback:** use only other sources explicitly registered and rights-cleared. If no compatible source is online, show unavailable; never silently search for unauthorised copies.
+- **Privacy:** P2P sharing is opt-in, visible and stoppable. Explain that peer IP addresses are visible to other peers.
+- **First implementation target:** progressive MP4 P2P playback in desktop Chrome, then Android Chrome. HLS/ABR over P2P is a later research milestone.
+
+Detailed specification: [P2P architecture](P2P_ARCHITECTURE.md).
