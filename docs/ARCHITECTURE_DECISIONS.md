@@ -177,3 +177,30 @@ When a decision changes, append a new ADR with ID/date, previous and new decisio
 **Reason:** TMDB metadata and IPFS content addressing do not grant distribution rights. A server-side resolver prevents the frontend from treating arbitrary CIDs or guesses as authorised sources. Keeping the manifest static preserves the no-database first-release design.
 
 **Consequences:** The first manifest is intentionally empty until a real rights-cleared asset is supplied, prepared and pinned. Browser gateway retrieval and playback remain separate milestones. v1 does not serve territory-limited rights; worldwide clearance is required until geographic entitlement enforcement is designed and tested.
+
+
+## ADR-014 — Chrome-first WebTorrent P2P playback; transport-neutral authorised sources
+
+**Date:** 2026-11-09  
+**Status:** LOCKED TARGET ARCHITECTURE; implementation pending  
+**Supersedes:** The transport choices in ADR-001, ADR-002 and ADR-003 where they conflict. Other decisions remain in force.
+
+**Decision:** gogoiTV's primary viewer experience is direct playback in ordinary Chrome without a native torrent client or extension. The primary P2P playback transport to prototype is browser WebTorrent over WebRTC. IPFS remains a supported secondary content-addressed transport, not the sole canonical delivery mechanism. A transport-neutral, rights-gated static source registry replaces the assumption that every title must first be uploaded and pinned by the project operator.
+
+**Reason:** The product goal is to let viewers receive authorised media from other participating computers without requiring the operator to upload every title. Browser WebTorrent is designed for browser-compatible WebRTC peers and progressive piece delivery.
+
+**Non-negotiable technical constraints:**
+- Browser WebTorrent peers cannot directly connect to ordinary BitTorrent TCP/µTP peers. They need compatible WebTorrent/WebRTC peers or a deliberately operated bridge.
+- WebRTC tracker/signalling services help peers discover/connect; they do not host the media. This is an external availability and operational dependency.
+- Browser seeding is best-effort while a page is open; browser closure, mobile suspension, NAT/firewalls and network policy can interrupt it.
+- P2P availability and speed depend on live peers, upload capacity and piece availability. No peer/source means no stream.
+- First vertical slice uses a rights-cleared progressive MP4 torrent. HLS-over-P2P and adaptive rendition packaging are later experiments, not assumed capabilities.
+- The source registry admits only public-domain, creator-owned or explicitly licensed distribution sources. No public-torrent scraping, arbitrary magnet ingestion or unauthorised source discovery.
+- Sharing is opt-in, visible and stoppable. Explain peer IP visibility; do not share watch history or unrelated local files.
+- Worker remains control plane only; never proxy video bytes. No app database or mandatory account in the first release.
+
+**Consequences:** Create `docs/P2P_ARCHITECTURE.md` as the implementation specification. Keep the existing IPFS manifest empty and do not deploy a guessed torrent hash or tracker configuration. Replace it with a transport-neutral rights-cleared registry before production P2P playback. The existing Worker/UI stay unchanged until a tested implementation batch is ready.
+
+**Acceptance evidence:** Two independent Chrome sessions on different networks join a rights-cleared test swarm, start before full download, seek, survive a peer disconnect when another peer is available, and demonstrate opt-in sharing. Repeat on desktop Chrome and Android Chrome. Record startup, peer count, throughput, rebuffering, data usage and limitations.
+
+**Trade-offs:** This better matches browser P2P but introduces WebRTC tracker/signalling, peer-availability and privacy complexity. It does not provide universal access to all internet computers or guarantee faster playback than a CDN.
