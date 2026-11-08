@@ -167,3 +167,39 @@ Set numeric targets only after measuring a baseline on representative devices an
 - My List persists on the current browser/device after reload.
 - TMDB attribution notice is visible; approved logo asset is loaded and not more prominent than gogoiTV.
 - No title is presented as playable until a rights-cleared media manifest is connected.
+
+
+## P2P / Chrome acceptance plan — added 2026-11-09
+
+Do not claim Chrome P2P playback is implemented until these checks pass.
+
+### Browser and swarm
+- [ ] Current desktop Chrome plays without extension/native client.
+- [ ] Current Android Chrome plays without extension/native client.
+- [ ] Two independent browser sessions on different networks join the same authorised WebTorrent/WebRTC swarm.
+- [ ] Playback begins before the complete file is downloaded.
+- [ ] Seek forward/backward and resume work; record codec/container constraints.
+- [ ] Disconnect one peer and verify recovery from another available peer; also verify graceful failure when no peer remains.
+- [ ] Confirm peer discovery/signalling over secure WebSocket and document tracker dependency.
+
+### Sharing, privacy and resource controls
+- [ ] Sharing is off by default and requires an explicit opt-in.
+- [ ] User can stop sharing immediately.
+- [ ] UI explains peer IP visibility and upload/download activity.
+- [ ] Only pieces for the currently selected authorised media are shared; no arbitrary local files.
+- [ ] Watch history and personal metadata are never sent to peers.
+- [ ] Mobile data, battery, memory and upload limits are measured and bounded.
+
+### Rights and registry
+- [ ] Each source has a documented rights basis, public HTTPS evidence, territories and verification date.
+- [ ] No arbitrary magnet lookup, public-torrent scraping or unverified fallback.
+- [ ] Registry supports transport types without treating TMDB metadata as a media source.
+- [ ] IPFS and approved HTTPS fallback are attempted only when explicitly registered.
+
+### Performance evidence
+- [ ] Record time-to-first-frame, peer count, download/upload throughput, rebuffer ratio, bytes transferred and source failure reason.
+- [ ] Test at least one single-peer and one multi-peer scenario.
+- [ ] Compare low-bandwidth/mobile conditions; do not claim P2P is always faster than CDN.
+- [ ] Test Chrome desktop and Android Chrome on different networks.
+
+A parsed torrent or successful peer handshake alone is not an acceptance pass.
