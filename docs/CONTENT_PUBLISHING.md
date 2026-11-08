@@ -1,3 +1,5 @@
+> **Architecture update (2026-11-09):** This guide documents the earlier IPFS-only publishing workflow. It is retained for reference and for future IPFS source records, but Pinata upload is no longer a prerequisite for the Chrome-first P2P prototype. See [P2P_ARCHITECTURE.md](P2P_ARCHITECTURE.md), ADR-014 and the current [roadmap](ROADMAP.md). Do not treat any torrent hash or media locator as approved without rights evidence and technical verification.
+
 # gogoiTV — Rights-cleared IPFS publishing guide
 
 This document describes the v1 publishing path. gogoiTV is a hybrid decentralised VOD platform: TMDB supplies metadata, while this separate manifest decides whether a title has an authorised media source.
