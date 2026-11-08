@@ -8,9 +8,10 @@ This directory is the durable source of truth for the gogoiTV product direction,
 2. [Milestone roadmap](ROADMAP.md) — delivery plan, statuses, deliverables and exit criteria.
 3. [Architecture decisions](ARCHITECTURE_DECISIONS.md) — technical choices locked for the first release.
 4. [Test and release plan](TEST_PLAN.md) — how milestones are verified.
-5. [Content publishing guide](CONTENT_PUBLISHING.md) — how to add rights-cleared IPFS media.
-6. [Progress log](PROGRESS_LOG.md) — implemented work, verified evidence, blockers and next action.
-7. [New-chat handoff prompt](SESSION_HANDOFF.md) — copy/paste instructions to resume work.
+5. [P2P architecture](P2P_ARCHITECTURE.md) — Chrome-first WebTorrent/WebRTC playback, IPFS fallback, registry and privacy constraints.
+6. [Content publishing guide](CONTENT_PUBLISHING.md) — legacy IPFS publishing workflow; not a prerequisite for the P2P prototype.
+7. [Progress log](PROGRESS_LOG.md) — implemented work, verified evidence, blockers and next action.
+8. [New-chat handoff prompt](SESSION_HANDOFF.md) — copy/paste instructions to resume work.
 
 ## Current snapshot
 
@@ -36,3 +37,16 @@ After every meaningful implementation batch:
 - Keep SESSION_HANDOFF.md aligned with the actual next action.
 
 A milestone is not complete because code was written. It is complete only when its exit criteria have been tested and evidence recorded.
+
+
+## Updated architecture snapshot — 2026-11-09
+
+- Target viewer experience: direct in-page playback in ordinary Chrome; no native torrent app, extension or installation.
+- Primary P2P target: WebTorrent over WebRTC with compatible browser peers; progressive MP4 is the first prototype.
+- IPFS remains an additional content-addressed source transport, not the only delivery mechanism.
+- A transport-neutral, static, rights-gated source registry replaces the IPFS-only upload-first assumption.
+- Ordinary BitTorrent TCP/µTP peers are not directly browser-compatible; browser WebTorrent requires compatible WebRTC peers or a deliberate bridge. No compatible peer means no P2P stream.
+- Sharing is opt-in and stoppable; peer IP visibility and mobile resource use must be disclosed.
+- No arbitrary torrent scraping, magnet discovery or unauthorised sources. Worker remains control-plane only; no video proxy or application database.
+- Architecture is documented in [P2P_ARCHITECTURE.md](P2P_ARCHITECTURE.md), ADR-014 and the replacement M3-M10 roadmap.
+- This is a documentation-only decision. The deployed app does not yet include WebTorrent playback.
