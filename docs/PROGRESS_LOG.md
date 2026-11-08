@@ -226,3 +226,31 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - Complete M2 browser acceptance checks against the deployed homepage (search, detail, genre/discovery, attribution and graceful error behavior). Then supply one genuine rights-cleared VOD asset and its actual IPFS publishing details to unblock M3.
+
+
+### 2026-11-09 — Live route verification and first rights-cleared media candidate
+
+**Live gogoiTV verification**
+- The user reports that the health, media-manifest and unmapped resolver pages display their required JSON in a normal browser.
+- A fresh Cloudflare Browser Rendering request fetched the public homepage with origin HTTP 200. The rendered document contained populated TMDB trending, movie and series shelves.
+- Direct browser-rendered origin check: `GET /api/health` returned HTTP 200 with `ok: true`, `app: "gogoiTV"`, `version: "0.3.0"`, `tmdbConfigured: true`, `mediaManifestCount: 0` and `mediaManifestInvalidCount: 0`.
+- Direct browser-rendered origin check: `GET /api/catalog/popular?type=movie` returned HTTP 200 with TMDB results.
+- Direct browser-rendered origin check: `GET /api/catalog/genres?type=movie` returned HTTP 200 with 19 genres.
+- Direct browser-rendered origin check: invalid media resolver parameters returned HTTP 400 with `INVALID_PARAMS` (expected).
+- Some other browser-rendering attempts were rate-limited with HTTP 429 by the Cloudflare Browser Rendering inspection API itself. This is a probe-service limitation, not a gogoiTV failure. Search/details/TV-genre/discovery and remaining negative/error tests stay NOT VERIFIED.
+- TMDB attribution text and the official logo URL are present in the source. Actual visual/logo-load review remains open.
+- No secrets were read. The active Worker binding remains a protected `secret_text`; no code or Cloudflare configuration was changed.
+
+**First content candidate researched**
+- Identified Big Buck Bunny as a candidate: TMDB movie ID `10378`; the official Blender project page states the Peach film is licensed under CC BY 3.0.
+- Creative Commons legal code section 3 grants worldwide rights to reproduce, distribute and publicly perform the work, subject to attribution and other conditions. The official Blender rights page requires the full credits roll when screening/broadcasting the entire film.
+- Found a public HLS demo identifying CID `QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K` as Big Buck Bunny with path `master.m3u8`; a separate player example references the same CID/path.
+- Candidate status is NOT APPROVED for the active manifest. The exact playlist/segments, full-film/credits completeness, duration and pinning provider/retention are not yet verified. Public runtime sources also disagree, so the exact HLS duration must be measured from the playlist itself.
+- Added the candidate evidence and gateway verification checklist to `docs/CONTENT_PUBLISHING.md`. The manifest remains empty and no title has been made playable.
+
+**Milestone state**
+- M2 remains PARTIAL: homepage, health, popular movies and movie genres have live evidence; search/details/TV-genre/discovery, error paths and attribution/logo visual review remain open.
+- M3 remains IN PROGRESS: the manifest/resolver work is live and the user confirms its JSON, but there is no fully verified/pinned media asset.
+
+**Next action**
+- Verify the Big Buck Bunny candidate playlist and every referenced segment through two independent gateways, confirm the full credits roll and exact duration, and select a dashboard-managed pinning provider with documented retention. Keep the manifest empty until those conditions are satisfied. In parallel, finish the remaining M2 search/details/error and attribution browser checks.

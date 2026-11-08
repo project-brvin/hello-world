@@ -1,7 +1,7 @@
 # gogoiTV — Milestone Roadmap
 
 **Status key:** DONE = exit criteria met; IN PROGRESS = active work; PARTIAL = implementation exists but an earlier phase's criteria remain; NEXT = upcoming; TODO = not started; BLOCKED = required external input missing.  
-**Last updated:** 2026-11-08
+**Last updated:** 2026-11-09
 
 ## Milestone overview
 
@@ -70,7 +70,7 @@ Locked decisions:
 
 ## M2 — TMDB catalogue and discovery
 
-**Status: PARTIAL — 2026-11-08 (reinspection; acceptance tests remain open)**
+**Status: PARTIAL — 2026-11-09 (live home/API slice verified; remaining search/detail/error checks open)**
 
 ### Implemented in the first M2 delivery batch
 - Added Worker API routes for trending, popular movies/TV, multi-search, movie/TV details with credits/videos, genre lists and genre discovery.
@@ -82,12 +82,14 @@ Locked decisions:
 
 ### Evidence and remaining work
 
-**2026-11-08 reinspection:** the current `main` source still contains all six catalogue route handlers. Cloudflare confirms the active v0.3.0 Worker version retains `TMDB_API_READ_ACCESS_TOKEN` as a `secret_text` binding. Public HTTP requests could not be independently retrieved through the available inspection path in this session, so no endpoint runtime test is counted as a pass or failure.
-
-- The user configured `TMDB_API_READ_ACCESS_TOKEN` as a Cloudflare Secret and confirms the homepage now displays movie and series tiles.
-- The code continues to keep the token in the Worker environment; it is not embedded in the frontend.
-- Search, title details, genre/discovery and upstream error behaviour still need a complete browser test pass.
-- TMDB attribution/logo appearance still needs browser review.
+**2026-11-09 live verification:**
+- Cloudflare Browser Rendering observed HTTP 200 for the public homepage and `/api/health`. The homepage rendered live TMDB trending/movie/series tiles; the health JSON reported `ok: true`, `app: "gogoiTV"`, `version: "0.3.0"`, `tmdbConfigured: true`, and manifest count 0.
+- Direct browser-rendered checks returned HTTP 200 for `/api/catalog/popular?type=movie` (TMDB result payload present) and `/api/catalog/genres?type=movie` (19 genres).
+- The invalid media-resolver test returned HTTP 400 with `code: "INVALID_PARAMS"`, as expected.
+- The user independently confirmed that `/api/media/manifest` and the unmapped resolver for movie ID `27205` display their required JSON. Their exact HTTP status was not captured by this session's inspection tool.
+- The active Worker version still has `TMDB_API_READ_ACCESS_TOKEN` as a `secret_text` binding; the token value was not read and a static scan found no token-shaped literal in `src/index.js`.
+- Search, movie/TV details, TV genres, genre discovery and the remaining error-path tests are still open. Requests for some of these were rate-limited by the Cloudflare Browser Rendering inspection API (HTTP 429 from that inspection service), which is not evidence of a Worker failure.
+- TMDB attribution text and logo reference are present in source; visual confirmation that the logo actually loads remains open.
 
 **Exit criteria**
 - Homepage displays live TMDB results, not hard-coded demo cards.
@@ -100,7 +102,7 @@ Locked decisions:
 
 ## M3 — Rights-cleared content and IPFS catalogue
 
-**Status: IN PROGRESS — 2026-11-08 (manifest/resolver foundation active; awaiting first authorised asset and public endpoint verification)**
+**Status: IN PROGRESS — 2026-11-09 (manifest/resolver foundation and endpoint JSON confirmed; first media candidate researched, but retrieval/pinning not verified)**
 
 ### Implemented in this pass
 - Added a separate, versioned static manifest module at `src/media-manifest.js` (currently empty; no media is fabricated).
@@ -112,11 +114,10 @@ Locked decisions:
 - Title details now check the authorised-source resolver and explain when a title is not playable.
 
 ### Remaining work
-1. Identify at least one public-domain, creator-owned or properly licensed VOD title with worldwide distribution rights.
-2. Prepare an HLS or MP4 rendition and publish/pin it to IPFS.
-3. Add its genuine CID/path, TMDB mapping and public rights evidence to the manifest.
-4. Verify manifest validation, resolver responses and retrieval over more than one gateway.
-5. Record pinning provider, retention responsibility and limits/costs.
+1. Validate the investigated Big Buck Bunny candidate described in `docs/CONTENT_PUBLISHING.md`: prove the exact HLS playlist and all referenced segments retrieve through at least two gateways; confirm the full film and required credits roll; determine the playlist's actual duration.
+2. Confirm a pinning provider or operator-controlled pinning responsibility, retention policy and current limits/costs. The existing example CID does not identify who pins it or guarantee persistence.
+3. Only after those checks, publish/repin the rendition using the dashboard workflow and add the genuine CID/path, TMDB mapping, duration and public rights evidence to the manifest.
+4. Validate the non-empty manifest and resolver, then test playback on the IPFS path. Keep the current empty manifest until the media evidence is complete.
 
 **Exit criteria (not yet met)**
 - At least one rights-cleared title resolves from a TMDB item to a valid IPFS CID/path.
