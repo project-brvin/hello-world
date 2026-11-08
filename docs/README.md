@@ -20,9 +20,10 @@ This directory is the durable source of truth for the gogoiTV product direction,
 - Data: no application database in the first release; use a versioned static catalogue manifest and browser-local state.
 - Acceleration: optional R2/edge-cache path for authorised popular assets, evaluated only after IPFS playback works.
 - Content: only public-domain, creator-owned or properly licensed media.
-- Worker: gogoitv; the homepage/live movie and series shelves were user-confirmed. The 2026-11-08 Cloudflare control-plane check confirms Worker version 0.3.0 is active at 100% traffic (version `34c75251-aa1c-4ef1-9e5a-1bce997dfb07`; deployment `11c85ccc-ed72-43fa-a018-dd3250eb87a0`), with the TMDB secret binding preserved.
-- Runtime caveat: the current external HTTP inspection path did not return a response for the public Worker URLs; current public health/API behavior is therefore not independently verified in this session.
-- Status: M0/M1 complete; M2 partial (live shelves user-confirmed; search/detail/genre/error and attribution checks remain); M3 in progress (v0.3.0 manifest/schema/resolver deployed, but its manifest remains empty and no title is playable).
+- Worker: `gogoitv` v0.3.0 is active at 100% traffic (version `34c75251-aa1c-4ef1-9e5a-1bce997dfb07`; deployment `11c85ccc-ed72-43fa-a018-dd3250eb87a0`); the `TMDB_API_READ_ACCESS_TOKEN` secret binding remains present.
+- Live checks on 2026-11-09: Cloudflare Browser Rendering observed HTTP 200 for the homepage, health, popular-movie and movie-genre endpoints; the homepage rendered live TMDB shelves. The health response reported `tmdbConfigured: true` and manifest count 0. The invalid media-resolver test returned the expected HTTP 400 `INVALID_PARAMS`. The user independently confirmed the manifest and unmapped-resolver endpoints display the expected JSON.
+- Runtime caveat: some additional Browser Rendering requests were rate-limited by the inspection API itself; search/detail/TV-genre/discovery and some error paths remain unverified, not failed.
+- Status: M0/M1 complete; M2 partial (homepage and selected APIs verified; remaining search/detail/error/attribution review open); M3 in progress (manifest/resolver deployed and empty; first rights-cleared IPFS candidate researched but not yet gateway/pinning verified or playable).
 
 ## Documentation maintenance rule
 
