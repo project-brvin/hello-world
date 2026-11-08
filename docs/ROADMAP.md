@@ -10,13 +10,13 @@
 | M0 | Product and architecture lock | DONE | Agreed direction and guardrails |
 | M1 | Foundation and deployment verification | DONE | Deployed Worker and successful homepage/health smoke check confirmed by user |
 | M2 | TMDB catalogue and discovery | PARTIAL | User confirms live movie/series shelves; search/detail/error-path coverage remains |
-| M3 | Rights-cleared content and IPFS catalogue | IN PROGRESS | Versioned manifest and rights-checked resolver deployed; first real authorised CID still needed |
-| M4 | Production-quality playback | TODO | HLS-first player with MP4 compatibility |
-| M5 | Delivery resilience and acceleration | TODO | Gateway racing, retry/fallback and measured performance |
-| M6 | PWA and student experience polish | TODO | Installable, responsive product with useful local state |
-| M7 | Intelligent discovery | TODO | Optional natural-language and mood-based search |
-| M8 | Security, quality and release readiness | TODO | Test evidence and launch checks complete |
-| M9 | Public launch and iteration | TODO | Monitored release and documented feedback |
+| M3 | Rights-cleared source registry | NEXT | Transport-neutral registry for authorised WebTorrent, IPFS and approved HTTPS sources |
+| M4 | Chrome WebTorrent playback prototype | NEXT | Progressive MP4 playback in Chrome from a compatible WebRTC swarm |
+| M5 | Peer discovery, seeding and privacy controls | TODO | Opt-in sharing, tracker/signalling, peer recovery and resource limits |
+| M6 | Multi-transport resilience | TODO | Approved IPFS/HTTPS fallback, source health and measured failover |
+| M7 | HLS/ABR over P2P research | DEFERRED | Proven segmented/rendition strategy or documented decision not to support it |
+| M8 | PWA, UX and performance polish | TODO | Mobile-first app shell, local state and measured performance |
+| M9 | Security, quality and release readiness | TODO | Rights, privacy, browser and operational acceptance complete |
 
 ## M0 — Product and architecture lock
 
@@ -254,3 +254,63 @@ A CID identifies content; it does not grant distribution rights or guarantee tha
 ## Working rule
 
 Every milestone needs a concrete code change, an observable test, recorded evidence or blocker, a progress-log entry, and documentation updates. Do not mark work DONE based only on code being written or an upload API reporting success.
+
+
+## Architecture pivot and replacement milestones — 2026-11-09
+
+**This section is authoritative for M3 onward and supersedes the earlier IPFS-upload-first sequence above.** The deployed Worker and M0-M2 status remain unchanged. See [P2P architecture](P2P_ARCHITECTURE.md) and ADR-014.
+
+### M3 — Transport-neutral rights-cleared source registry
+**Status: NEXT**
+- Design schema for WebTorrent, IPFS and explicitly approved HTTPS source records.
+- Preserve rights evidence, territories, verification dates/expiry, file metadata and source health.
+- Migrate resolver semantics without making any unverified title playable.
+- Keep the current IPFS manifest empty until migration is implemented and validated.
+**Exit:** schema validation, rights-gating tests, duplicate mapping tests, and explicit non-playable response for unknown/unverified titles.
+
+### M4 — Chrome WebTorrent MP4 vertical slice
+**Status: NEXT**
+- Select a maintained browser-compatible WebTorrent client after checking current package/browser support.
+- Use a controlled, rights-cleared test asset and WebRTC tracker/signalling.
+- Implement progressive MP4 playback inside ordinary Chrome; no native client or extension.
+- Test two browser sessions and real seeking.
+**Exit:** two independent Chrome sessions on different networks can play from a compatible swarm before full download; desktop Chrome passes, Android Chrome is tested and limitations recorded.
+
+### M5 — Peer discovery, opt-in sharing and privacy
+**Status: TODO**
+- Add explicit opt-in sharing, clear peer-IP disclosure, stop-sharing control and bounded upload/download.
+- Confirm browser session seeding behaviour and peer disconnect/rejoin handling.
+- Do not share unrelated files or user history.
+**Exit:** documented privacy/resource controls and verified peer recovery with another peer available.
+
+### M6 — Multi-transport resilience
+**Status: TODO**
+- Add IPFS and approved HTTPS adapters as explicit registry sources.
+- Implement bounded source selection, retry and fallback.
+- Never search arbitrary torrents or silently substitute unapproved content.
+**Exit:** measurable failover from unavailable WebTorrent swarm to an explicitly authorised registered source; graceful unavailable state if none works.
+
+### M7 — HLS/ABR over P2P research
+**Status: DEFERRED**
+- Evaluate segment-per-file/torrent, multi-rendition packaging or another browser-compatible protocol.
+- Measure switching, seek, startup and bandwidth on Chrome desktop/Android.
+**Exit:** tested design decision and prototype, or documented reason to retain progressive MP4 for the initial release.
+
+### M8 — PWA and student experience polish
+**Status: TODO**
+- Installability, mobile UX, local watchlist/progress, accessibility and bounded app-shell offline support.
+**Exit:** representative device checks and no regression to playback.
+
+### M9 — Security, quality and release readiness
+**Status: TODO**
+- Rights audit, privacy review, source registry validation, browser/network matrix, performance and operational cost checks.
+**Exit:** every release gate in TEST_PLAN.md has recorded evidence.
+
+### M10 — Launch and iteration
+**Status: TODO**
+- Monitored release, user feedback and documented operations.
+**Exit:** stable public experience with transparent availability/cost limitations.
+
+## Immediate next task
+
+Build a controlled, rights-cleared WebTorrent MP4 test swarm and a minimal Chrome playback vertical slice. Do not upload every film to Pinata as a prerequisite. Do not deploy arbitrary torrent sources or claim that ordinary BitTorrent peers are browser-compatible.
