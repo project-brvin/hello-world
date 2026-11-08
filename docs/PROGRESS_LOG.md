@@ -263,3 +263,27 @@ This is the factual work journal. Record implementation and verification separat
 - Classification: candidate gateway retrieval remains UNVERIFIED. The 403 is a bot challenge to the inspection browser, not proof that the CID is absent; the 429 is an inspection-tool limit, not a gogoiTV or IPFS failure.
 - No HLS playlist/segment content was inspected, no duration was measured, and no pinning provider was identified. The manifest remains empty.
 - Next action: open the two gateway URLs in a normal browser and confirm the playlist and every referenced segment load; then verify the complete-film/credits condition and arrange project-controlled pinning with recorded retention details.
+
+
+### 2026-11-09 — Search/discovery verification and rejection of empty IPFS demo asset
+
+**M2 live API checks**
+- `GET /api/catalog/search?q=Inception`: origin HTTP 200; JSON returned 13 results, with Inception movie ID `27205` first.
+- `GET /api/catalog/discover?type=movie&genre=28`: origin HTTP 200; JSON returned 20 movie results.
+- Movie details inspection did not produce a parseable body; subsequent Browser Rendering requests were rate-limited (HTTP 429 from the inspection API). TV genre inspection also hit the inspection API's 429. These are unverified, not Worker failures.
+- Existing passes remain: homepage, health, popular movies, movie genres, expected invalid resolver HTTP 400, plus user-confirmed manifest and unmapped resolver JSON.
+
+**Big Buck Bunny source decision**
+- User opened the previously documented `ipfs.io` and `dweb.link` HLS links; both clicks downloaded empty files.
+- Retire third-party CID `QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K` and path `master.m3u8`. It is not usable for gogoiTV and must not be written into the active manifest. This does not invalidate Big Buck Bunny's licensing.
+- The Blender download page links to the official 2008 source archive. A 720p H.264 MOV source is documented at `https://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_h264.mov`. Convert it to H.264 MP4 using a GUI, retaining the complete film and credits.
+- Documented a dashboard workflow: create a local folder with `video.mp4`; upload the folder in Pinata's Files dashboard; use the returned folder CID and relative path `video.mp4`; verify the new content through two gateways and check Range/seek.
+- Pinata's published pricing currently lists a Free plan (1 GB storage, 500 files, one gateway, 10 GB bandwidth, 10,000 requests/month) and Picnic at $20/month (1 TB storage, 500 GB bandwidth, 5 million requests). The Free plan is only a test-asset allowance and is not a free-at-scale delivery promise.
+- No Pinata account or API credentials were connected or requested in chat. No media file was uploaded by this session. Manifest remains empty.
+
+**Milestone state**
+- M2 remains PARTIAL: search and genre discovery now have live 200-response evidence; details/TV genres/error handling and attribution visuals remain open.
+- M3 remains IN PROGRESS: old demo CID rejected; next is project-controlled MP4 folder upload and fresh CID verification.
+
+**Next action**
+- User downloads the official 720p source, converts it to H.264 MP4 with a GUI encoder, uploads a folder containing `video.mp4` to an operator-controlled IPFS pinning dashboard, and provides the returned folder CID plus exact file duration/size. Then verify two gateways before changing the manifest.

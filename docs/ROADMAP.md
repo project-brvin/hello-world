@@ -70,7 +70,7 @@ Locked decisions:
 
 ## M2 — TMDB catalogue and discovery
 
-**Status: PARTIAL — 2026-11-09 (live home/API slice verified; remaining search/detail/error checks open)**
+**Status: PARTIAL — 2026-11-09 (homepage, search, discovery and selected API routes verified; details/error/attribution review open)**
 
 ### Implemented in the first M2 delivery batch
 - Added Worker API routes for trending, popular movies/TV, multi-search, movie/TV details with credits/videos, genre lists and genre discovery.
@@ -87,8 +87,10 @@ Locked decisions:
 - Direct browser-rendered checks returned HTTP 200 for `/api/catalog/popular?type=movie` (TMDB result payload present) and `/api/catalog/genres?type=movie` (19 genres).
 - The invalid media-resolver test returned HTTP 400 with `code: "INVALID_PARAMS"`, as expected.
 - The user independently confirmed that `/api/media/manifest` and the unmapped resolver for movie ID `27205` display their required JSON. Their exact HTTP status was not captured by this session's inspection tool.
+- `GET /api/catalog/search?q=Inception`: origin HTTP 200, JSON results returned; first result was movie ID `27205` (Inception), with 13 total results.
+- `GET /api/catalog/discover?type=movie&genre=28`: origin HTTP 200, 20 results returned.
 - The active Worker version still has `TMDB_API_READ_ACCESS_TOKEN` as a `secret_text` binding; the token value was not read and a static scan found no token-shaped literal in `src/index.js`.
-- Search, movie/TV details, TV genres, genre discovery and the remaining error-path tests are still open. Requests for some of these were rate-limited by the Cloudflare Browser Rendering inspection API (HTTP 429 from that inspection service), which is not evidence of a Worker failure.
+- Movie details, TV genres, empty/no-result search, invalid detail parameters, upstream failure and unknown route remain unverified. Calls for some were rate-limited by the Cloudflare Browser Rendering inspection API (HTTP 429 from that inspection service), which is not evidence of a Worker failure; the details attempt returned no parseable body.
 - TMDB attribution text and logo reference are present in source; visual confirmation that the logo actually loads remains open.
 
 **Exit criteria**
@@ -98,11 +100,11 @@ Locked decisions:
 - API credentials are absent from frontend bundles and committed source.
 - Upstream failure does not crash the whole page.
 
-**Remaining evidence:** complete the search, detail, attribution and upstream-failure browser checks. Keep the existing TMDB token in its Cloudflare Secret binding.
+**Remaining evidence:** finish details, TV genre, no-result/error and attribution/logo browser checks. Keep the existing TMDB token in its Cloudflare Secret binding.
 
 ## M3 — Rights-cleared content and IPFS catalogue
 
-**Status: IN PROGRESS — 2026-11-09 (manifest/resolver foundation and endpoint JSON confirmed; first media candidate researched, but retrieval/pinning not verified)**
+**Status: IN PROGRESS — 2026-11-09 (manifest/resolver JSON confirmed; third-party demo CID rejected; project-owned upload required)**
 
 ### Implemented in this pass
 - Added a separate, versioned static manifest module at `src/media-manifest.js` (currently empty; no media is fabricated).
@@ -114,10 +116,11 @@ Locked decisions:
 - Title details now check the authorised-source resolver and explain when a title is not playable.
 
 ### Remaining work
-1. Validate the investigated Big Buck Bunny candidate described in `docs/CONTENT_PUBLISHING.md`: prove the exact HLS playlist and all referenced segments retrieve through at least two gateways; confirm the full film and required credits roll; determine the playlist's actual duration.
-2. Confirm a pinning provider or operator-controlled pinning responsibility, retention policy and current limits/costs. The existing example CID does not identify who pins it or guarantee persistence.
-3. Only after those checks, publish/repin the rendition using the dashboard workflow and add the genuine CID/path, TMDB mapping, duration and public rights evidence to the manifest.
-4. Validate the non-empty manifest and resolver, then test playback on the IPFS path. Keep the current empty manifest until the media evidence is complete.
+1. Do not use candidate CID `QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K`: the user tried both documented gateways and each produced an empty download. The candidate IPFS copy is rejected for this project.
+2. Use the official Blender 720p H.264 MOV source documented in `docs/CONTENT_PUBLISHING.md`, convert it to H.264 MP4 with a GUI encoder while preserving the full ending credits, and record the exact output duration/size.
+3. Upload a folder containing `video.mp4` through a pinning provider dashboard; record the new folder CID, provider, retention responsibility, current plan limits and gateway URL. A folder CID is required so manifest path `video.mp4` resolves inside the folder.
+4. Verify the newly pinned MP4 through two independent gateways (including HTTP Range behaviour), then add the fresh CID/path, TMDB mapping, duration and Blender rights evidence to the manifest.
+5. Validate the non-empty manifest/resolver and test actual playback. Keep the current manifest empty until the upload is controlled and verified.
 
 **Exit criteria (not yet met)**
 - At least one rights-cleared title resolves from a TMDB item to a valid IPFS CID/path.

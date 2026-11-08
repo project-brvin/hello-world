@@ -11,21 +11,49 @@ This document describes the v1 publishing path. gogoiTV is a hybrid decentralise
 - One active media entry per TMDB `type + id` is supported in v1.
 - Use VOD assets only. No unauthorised torrents, magnet links, live TV or sports restreams.
 
-## Investigated first-title candidate — NOT YET APPROVED FOR THE ACTIVE MANIFEST
+## First-title rights candidate — Big Buck Bunny; old demo CID rejected
 
-**Big Buck Bunny** is a promising rights-cleared candidate, but its IPFS copy must pass retrieval and completeness checks before it is published.
+Big Buck Bunny remains a viable first title on rights grounds. **Do not use the third-party demo IPFS CID below.**
 
-| Field | Investigated value | Evidence/status |
+| Field | Current value | Evidence/status |
 |---|---|---|
-| Title | Big Buck Bunny (2008) | Official Blender project and TMDB entry |
+| Title | Big Buck Bunny (2008) | Blender Foundation open movie |
 | TMDB mapping | `type: "movie"`, `id: 10378` | [TMDB movie page](https://www.themoviedb.org/movie/10378-big-buck-bunny) |
-| Rights basis | `licensed` — Creative Commons Attribution 3.0 Unported (CC BY 3.0) | [Official Blender project rights statement](https://peach.blender.org/about/) |
-| Licence terms | Worldwide, royalty-free, non-exclusive, perpetual licence that permits reproduction, distribution and public performance, subject to the licence conditions | [CC BY 3.0 legal code, section 3](https://creativecommons.org/licenses/by/3.0/legalcode) |
-| Candidate media | HLS, `master.m3u8` | [IPFS HLS demo identifies this CID as Big Buck Bunny](https://ipfsvideo.cc/?hash=QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K&title=Big%20Buck%20Bunny); [a separate player example loads the same CID and `master.m3u8`](https://codepen.io/ipfs/pen/XyVXRN) |
-| Candidate CID | `QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K` | CID/path identity is candidate evidence only; not a pinning or availability guarantee |
-| Candidate path | `master.m3u8` | Not yet retrieved/inspected by this project |
-| Duration | **Unverified for this IPFS rendition** | Public references differ: TMDB lists 8 minutes, Blender Studio lists 9:56, and a Wikimedia 4K encode is 10:35. Sum the actual playlist's `#EXTINF` durations or inspect the exact asset; do not copy a catalogue runtime into the manifest. |
-| Pinning provider/retention | Unknown | The third-party demo does not identify an accountable pinning provider or retention commitment |
+| Rights basis | `licensed` — CC BY 3.0 Unported | [Official Blender rights statement](https://peach.blender.org/about/) |
+| Rights conditions | Worldwide distribution/public performance allowed subject to attribution and licence conditions; keep the complete original credits roll when showing the entire film | [CC BY 3.0 legal code, section 3](https://creativecommons.org/licenses/by/3.0/legalcode) |
+| Official source | 720p H.264 MOV | [Blender official download page](https://peach.blender.org/download/) links to the old film archive; [direct 720p source](https://download.blender.org/peach/bigbuckbunny_movies/big_buck_bunny_720p_h264.mov) |
+| Preferred initial delivery | H.264 MP4 (MP4 compatibility path) | Convert/re-wrap the official 720p source using a desktop GUI encoder; preserve every frame including the full credits roll |
+| TMDB poster/metadata | metadata only | TMDB does not confer media rights |
+
+### Retired third-party IPFS demo
+
+- CID: `QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K`
+- Path: `master.m3u8`
+- The user opened both previously supplied gateway links; both actions downloaded empty files. The playlist body and media segments have not been verified. **This CID/path is rejected for gogoiTV and must never be added to the active manifest.**
+- This finding is scoped to the supplied third-party rendition. It does not invalidate the film's CC BY rights or prove that every copy of the CID is absent from IPFS.
+
+### Dashboard-only first upload path
+
+1. Download the 720p H.264 MOV from the official Blender source above. Do not use the low-resolution 320×180 sample for the public catalogue.
+2. Convert/re-wrap to H.264 MP4 in a GUI encoder such as [Shutter Encoder](https://www.shutterencoder.com/). Choose H.264 output with MP4 container and AAC audio. Do not trim, crop, speed up or remove the ending. The tool's [official documentation](https://www.shutterencoder.com/documentation/) describes the H.264 output function.
+3. Inspect the finished output in the GUI's media-information panel; record the exact duration and file size. The runtime must be measured from this exact file, not copied from a TMDB page or a different Big Buck Bunny encode.
+4. Create a local folder named `big-buck-bunny` containing a single file named `video.mp4`.
+5. In the [Pinata dashboard](https://app.pinata.cloud/), open **Files → Upload → Folder** and upload the `big-buck-bunny` folder. Pinata's [dashboard upload guide](https://www.pinata.cloud/blog/how-to-pin-a-file-to-ipfs/) describes uploading files/folders and retrieving the resulting CID.
+6. Save the returned **folder CID**, not a guessed CID. The manifest mapping will then use `protocol: "mp4"`, `path: "video.mp4"` and `mimeType: "video/mp4"`.
+7. Test the new URL through at least two independent gateways, verify the file opens as a video and confirm HTTP Range/seek works. Only then record the actual CID, exact duration, size and pinning/retention responsibility for manifest review.
+
+**Pinata cost guardrail (checked 2026-11-09):** the published Free plan lists 1 GB storage, 500 files, one gateway, 10 GB gateway bandwidth and 10,000 requests/month at $0/month; the listed Picnic plan is $20/month with 1 TB storage, 500 GB bandwidth and 5 million requests. Recheck [Pinata's live pricing](https://pinata.cloud/pricing) before signup or upload. The free plan is suitable only for the first test asset, not an unlimited public streaming promise.
+
+### Required acceptance before manifest activation
+
+- Official source and CC BY 3.0 rights evidence are recorded.
+- Converted file retains the entire original film and credits roll.
+- Exact duration, size and H.264/AAC media information are recorded.
+- A new folder CID is pinned in an account controlled by the project operator.
+- The same MP4 is fetched through two independent gateways and seeking/Range is verified.
+- Retention responsibility and current pinning/gateway limits are documented.
+
+Until all checks pass, keep `src/media-manifest.js` empty and Big Buck Bunny non-playable.
 
 ### Rights and attribution conditions
 

@@ -21,9 +21,10 @@ This directory is the durable source of truth for the gogoiTV product direction,
 - Acceleration: optional R2/edge-cache path for authorised popular assets, evaluated only after IPFS playback works.
 - Content: only public-domain, creator-owned or properly licensed media.
 - Worker: `gogoitv` v0.3.0 is active at 100% traffic (version `34c75251-aa1c-4ef1-9e5a-1bce997dfb07`; deployment `11c85ccc-ed72-43fa-a018-dd3250eb87a0`); the `TMDB_API_READ_ACCESS_TOKEN` secret binding remains present.
-- Live checks on 2026-11-09: Cloudflare Browser Rendering observed HTTP 200 for the homepage, health, popular-movie and movie-genre endpoints; the homepage rendered live TMDB shelves. The health response reported `tmdbConfigured: true` and manifest count 0. The invalid media-resolver test returned the expected HTTP 400 `INVALID_PARAMS`. The user independently confirmed the manifest and unmapped-resolver endpoints display the expected JSON.
-- Runtime caveat: some additional Browser Rendering requests were rate-limited by the inspection API itself; search/detail/TV-genre/discovery and some error paths remain unverified, not failed.
-- Status: M0/M1 complete; M2 partial (homepage and selected APIs verified; remaining search/detail/error/attribution review open); M3 in progress (manifest/resolver deployed and empty; first rights-cleared IPFS candidate researched but not yet gateway/pinning verified or playable).
+- Live checks on 2026-11-09: homepage, health, popular movies, movie genres, search (`Inception`) and Action discovery returned origin HTTP 200; discovery returned 20 titles. Health reported `tmdbConfigured: true` and manifest count 0. Invalid media-resolver input returned the expected HTTP 400 `INVALID_PARAMS`. The user independently confirmed the manifest and unmapped-resolver endpoints display the required JSON.
+- Remaining checks: movie details, TV genres, error paths, and visual TMDB logo review remain unverified because the inspection browser's own rate limiting prevented some responses. These are not recorded as Worker failures.
+- Content finding: the third-party Big Buck Bunny IPFS demo CID was tested by the user through both listed gateways; both downloads were empty. Retire that CID from consideration. Big Buck Bunny remains a lawful rights candidate under CC BY 3.0, but the project must convert the official Blender source and pin its own new IPFS folder.
+- Status: M0/M1 complete; M2 partial (homepage and several live APIs verified; details/TV genres/error/attribution review open); M3 in progress (manifest remains empty; next is a dashboard-published MP4 with a fresh project-controlled CID).
 
 ## Documentation maintenance rule
 

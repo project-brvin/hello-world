@@ -27,10 +27,12 @@ Record browser/device, date, test asset, network profile and result for importan
 - `GET /api/health`: origin HTTP 200; JSON fields included `ok: true`, `app: "gogoiTV"`, `version: "0.3.0"`, `tmdbConfigured: true`, `mediaManifestCount: 0`, and `mediaManifestInvalidCount: 0`.
 - `GET /api/catalog/popular?type=movie`: origin HTTP 200; JSON contained TMDB movie results.
 - `GET /api/catalog/genres?type=movie`: origin HTTP 200; JSON contained 19 genres.
+- `GET /api/catalog/search?q=Inception`: origin HTTP 200; 13 results; first result movie ID `27205` (Inception).
+- `GET /api/catalog/discover?type=movie&genre=28`: origin HTTP 200; 20 movie results.
 - `GET /api/media/resolve?type=bad&id=x`: origin HTTP 400; JSON `code: "INVALID_PARAMS"` (expected validation response).
 - User independently confirmed the health, media-manifest and unmapped-movie resolver pages show the required JSON. This is user-confirmed evidence; HTTP statuses for the manifest and unmapped resolver were not captured by this run.
-- Several other browser-rendering requests returned HTTP 429 from the **Cloudflare Browser Rendering inspection API**, not from gogoiTV. These are classified as probe-tool rate limits, not application failures. Search, details, TV genres, discovery and selected negative tests remain NOT VERIFIED.
-- The Big Buck Bunny candidate playlist request to `ipfs.io` received origin HTTP 403 with a Cloudflare challenge page in the headless inspection browser; no HLS playlist body was received. This is not evidence that the CID is absent. The `dweb.link` attempt was blocked by HTTP 429 from the Browser Rendering inspection API before an origin response.
+- The movie-details attempt returned no parseable body and the TV-genres attempt was blocked by HTTP 429 from the **Cloudflare Browser Rendering inspection API**. Those results are NOT VERIFIED, not application failures. Search and discovery were later independently verified as HTTP 200.
+- The user tried the Big Buck Bunny candidate URLs through both `ipfs.io` and `dweb.link`; each click downloaded an empty file. Treat this third-party CID/path as unusable for this project and do not add it to the manifest. Earlier headless probes had also received a challenge (403) and tool rate limit (429).
 - The current homepage source includes TMDB's non-endorsement attribution and official logo URL. The rendered UI/logo load still needs visual review.
 
 ## M1 — Foundation
@@ -54,7 +56,7 @@ Record browser/device, date, test asset, network profile and result for importan
 |---|---|---|
 | Worker secret configured | TMDB_API_READ_ACCESS_TOKEN exists as secret_text binding | PASS — active Worker version metadata confirms the binding exists; value remains hidden (2026-11-08) |
 | Live homepage shelves | Movie and series tiles render from TMDB | USER-CONFIRMED PASS — user reports tiles now appear |
-| Search/details/genres/error states | All expected responses and fallbacks | PARTIAL — homepage loads live shelves; popular movies (200), movie genres (200) and invalid resolver validation (400 expected) verified. Search/details/TV genres/discover and other error paths remain NOT VERIFIED; inspection API 429s are not Worker failures |
+| Search/details/genres/error states | All expected responses and fallbacks | PARTIAL — homepage loads live shelves; popular movies (200), movie genres (200), search `Inception` (200/13 results) and Action discovery (200/20 results) verified. Movie details, TV genres, no-result/invalid-search and upstream/unknown-route paths remain NOT VERIFIED; inspection API 429s are not Worker failures |
 | Credential exposure | No token in frontend/source/query strings | PARTIAL — static source scan found no token-shaped literal in `src/index.js`; inspect the served frontend and network requests before sign-off |
 | TMDB attribution/logo | Attribution visible and logo loads | SOURCE PASS for attribution text and official logo reference; actual logo image load/visual prominence still pending |
 
@@ -69,8 +71,8 @@ Record browser/device, date, test asset, network profile and result for importan
 | Unmapped TMDB title | Resolver returns playable:false and NO_RIGHTS_CLEARED_SOURCE | USER-CONFIRMED JSON PASS for movie ID 27205; HTTP status not independently captured |
 | Invalid resolver parameters | HTTP 400 with INVALID_PARAMS | PASS — origin HTTP 400 with `INVALID_PARAMS` for `type=bad&id=x` |
 | Rights/CID/path validation | Invalid, expired, duplicate or non-worldwide records are excluded | Implemented; requires fixture-based runtime tests |
-| Real authorised content | At least one TMDB mapping resolves to a real pinned CID/path | BLOCKED — Big Buck Bunny is a rights-cleared candidate (TMDB movie 10378; CC BY 3.0) but its candidate IPFS rendition, full credits and pinning responsibility are not yet verified |
-| Multi-gateway retrieval | Same asset is retrievable through two independent gateways | BLOCKED — `ipfs.io` returned a headless-browser challenge (403); `dweb.link` was not reached due to inspection API 429. Neither result proves CID absence; test from a normal browser and verify segment paths |
+| Real authorised content | At least one TMDB mapping resolves to a real pinned CID/path | BLOCKED — Big Buck Bunny rights candidate (TMDB movie 10378; CC BY 3.0); third-party demo CID rejected after user obtained empty downloads from both gateways. Need a new project-pinned rendition |
+| Multi-gateway retrieval | Same asset is retrievable through two independent gateways | BLOCKED — user reports the candidate playlist links at both gateways downloaded empty files. The candidate CID/path is not usable; repeat only with a new project-controlled CID |
 
 ## M4 — Player
 
