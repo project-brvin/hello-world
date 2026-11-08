@@ -14,6 +14,14 @@
 
 Record browser/device, date, test asset, network profile and result for important playback tests.
 
+## Latest remote inspection — 2026-11-08
+
+- Cloudflare control plane confirms Worker `gogoitv` deployment `11c85ccc-ed72-43fa-a018-dd3250eb87a0` routes 100% of traffic to version `34c75251-aa1c-4ef1-9e5a-1bce997dfb07` (version number 6).
+- The active version's resource metadata includes `TMDB_API_READ_ACCESS_TOKEN` with type `secret_text`; the value was not read.
+- Workers.dev is enabled. Worker logs are enabled and traces are enabled with 10% head sampling.
+- The public HTTP inspection path returned no Worker response for the checked URLs (cache miss / inaccessible URL). Treat live endpoint tests as NOT VERIFIED, not as endpoint failures.
+- Static checks: `src/index.js` contains the six catalogue handlers and both media handlers; `docs/media-manifest.schema.json` parses as JSON; `src/media-manifest.js` still has an empty `items` array; no token-shaped credential literal was found in `src/index.js`. These checks do not replace runtime/API or full secret-exposure testing.
+
 ## M1 — Foundation
 
 | Test | Expected result | Evidence/status |
@@ -33,10 +41,10 @@ Record browser/device, date, test asset, network profile and result for importan
 
 | Test | Expected result | Evidence/status |
 |---|---|---|
-| Worker secret configured | TMDB_API_READ_ACCESS_TOKEN exists as secret_text binding | PASS — Cloudflare secret list confirms binding exists; value remains hidden |
+| Worker secret configured | TMDB_API_READ_ACCESS_TOKEN exists as secret_text binding | PASS — active Worker version metadata confirms the binding exists; value remains hidden (2026-11-08) |
 | Live homepage shelves | Movie and series tiles render from TMDB | USER-CONFIRMED PASS — user reports tiles now appear |
-| Search/details/genres/error states | All expected responses and fallbacks | PENDING — not independently exercised in this session |
-| Credential exposure | No token in frontend/source/query strings | REVIEW PENDING |
+| Search/details/genres/error states | All expected responses and fallbacks | PENDING — source handlers exist; public runtime/browser responses were not retrievable in this session |
+| Credential exposure | No token in frontend/source/query strings | PARTIAL — static source scan found no token-shaped literal in `src/index.js`; inspect the served frontend and network requests before sign-off |
 | TMDB attribution/logo | Attribution visible and logo loads | BROWSER REVIEW PENDING |
 
 ## M3 — Content and IPFS
@@ -45,10 +53,10 @@ Record browser/device, date, test asset, network profile and result for importan
 |---|---|---|
 | Cloudflare Worker upload | Both ES modules uploaded and v0.3.0 deployment receives 100% traffic | PASS — Cloudflare control plane |
 | Existing TMDB secret binding | TMDB_API_READ_ACCESS_TOKEN remains a secret_text binding after upload | PASS — Cloudflare settings checked immediately after deployment |
-| Manifest endpoint | Returns schema/version/count and a valid items array | DEPLOYED; public HTTP check pending |
-| Empty manifest behaviour | Count is 0; no title is assumed playable | EXPECTED initial state; verify in browser |
-| Unmapped TMDB title | Resolver returns playable:false and NO_RIGHTS_CLEARED_SOURCE | DEPLOYED; public HTTP check pending |
-| Invalid resolver parameters | HTTP 400 with INVALID_PARAMS | DEPLOYED; public HTTP check pending |
+| Manifest endpoint | Returns schema/version/count and a valid items array | DEPLOYED; public HTTP check NOT VERIFIED — current inspection path returned no HTTP response |
+| Empty manifest behaviour | Count is 0; no title is assumed playable | SOURCE PASS — `items` is empty; public response/count still NOT VERIFIED |
+| Unmapped TMDB title | Resolver returns playable:false and NO_RIGHTS_CLEARED_SOURCE | IMPLEMENTED in source; public runtime response NOT VERIFIED |
+| Invalid resolver parameters | HTTP 400 with INVALID_PARAMS | IMPLEMENTED in source; public runtime response NOT VERIFIED |
 | Rights/CID/path validation | Invalid, expired, duplicate or non-worldwide records are excluded | Implemented; requires fixture-based runtime tests |
 | Real authorised content | At least one TMDB mapping resolves to a real pinned CID/path | BLOCKED — no rights-cleared test asset supplied/published |
 | Multi-gateway retrieval | Same asset is retrievable through two independent gateways | BLOCKED — requires a real pinned asset; M5 selection is not implemented yet |

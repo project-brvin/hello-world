@@ -195,3 +195,34 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - Obtain one public-domain, creator-owned or properly licensed VOD asset with worldwide distribution rights; prepare HLS/MP4, pin it to IPFS, and add its genuine CID/path, TMDB ID and public HTTPS rights evidence following `docs/CONTENT_PUBLISHING.md`.
+
+
+### 2026-11-08 — Repository and production Worker reinspection
+
+**Repository**
+- Read the project handbook, charter, roadmap, architecture decisions, test plan, progress log and session handoff from the current `main` branch.
+- Inspected the recursive repository tree and the current Worker source, static manifest, JSON Schema, `package.json` and `wrangler.jsonc`.
+- The inspected `main` head was `b42429bb18c92ef7d5358bf2afe0481c22dac196`.
+- Static source review confirms handlers for trending, popular, search, details, genres and discovery, plus both media-manifest endpoints.
+- The manifest schema parses as JSON. The published manifest module still has `items: []`; no media record or CID was fabricated.
+- A basic source scan found no token-shaped hardcoded credential in `src/index.js`. This is not a substitute for a full served-bundle/network review.
+
+**Cloudflare control-plane verification**
+- Account resource inspection confirms Worker `gogoitv` exists and its workers.dev subdomain is enabled.
+- Latest deployment is `11c85ccc-ed72-43fa-a018-dd3250eb87a0`, created 2026-11-07T18:23:47Z, with 100% traffic on version `34c75251-aa1c-4ef1-9e5a-1bce997dfb07` (version number 6).
+- The active version's resource metadata includes `TMDB_API_READ_ACCESS_TOKEN` as `secret_text`. The secret value was not retrieved.
+- Worker logs are enabled and traces are enabled with 10% head sampling.
+- Runtime metadata reports compatibility date `2026-11-07`.
+
+**Public runtime checks**
+- Attempted public checks of the Worker health route, media manifest/resolver and catalogue routes.
+- The available web inspection path returned cache-miss/inaccessible-URL errors before it provided an HTTP status or response body. This is an inspection limitation, not evidence that the Worker returned an error; public endpoint behavior remains NOT VERIFIED here.
+- The previous user-confirmed homepage/live-shelf evidence remains valid, but current search/detail/genre/error and attribution acceptance checks are still outstanding.
+
+**Milestone state**
+- M2 remains PARTIAL. No route behavior is promoted to PASS based solely on source inspection or Cloudflare deployment metadata.
+- M3 remains IN PROGRESS. The deployed manifest is empty; a real worldwide-rights-cleared asset, its actual IPFS CID/path, TMDB ID, format/duration and public HTTPS rights evidence are still required.
+- No application code was changed and no new Worker version was uploaded during this inspection.
+
+**Next action**
+- Complete M2 browser acceptance checks against the deployed homepage (search, detail, genre/discovery, attribution and graceful error behavior). Then supply one genuine rights-cleared VOD asset and its actual IPFS publishing details to unblock M3.

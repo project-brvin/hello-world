@@ -20,7 +20,9 @@ Health route: https://gogoitv.projectbrvin.workers.dev/api/health
 Media manifest: https://gogoitv.projectbrvin.workers.dev/api/media/manifest  
 Media resolver example: https://gogoitv.projectbrvin.workers.dev/api/media/resolve?type=movie&id=1
 
-The Worker URL is an expected address, not proof that the endpoint is currently healthy. Verify it before relying on it.
+The Worker URL is an expected address, not proof that the endpoint is currently healthy.
+
+Latest control-plane inspection (2026-11-08): deployment `11c85ccc-ed72-43fa-a018-dd3250eb87a0` routes 100% to Worker version `34c75251-aa1c-4ef1-9e5a-1bce997dfb07` (v0.3.0); the active version retains `TMDB_API_READ_ACCESS_TOKEN` as a `secret_text` binding; workers.dev is enabled; logs and 10%-sampled traces are enabled. Public HTTP endpoints were not independently verified through the available inspection path in that session. Verify it before relying on it.
 
 ## Copy/paste prompt for a fresh ChatGPT conversation
 
@@ -74,6 +76,6 @@ Build a premium, no-ad, free-to-viewer, mobile-first streaming discovery and pla
 - Do not add features that compromise reliability, privacy, legality or the free-to-viewer promise.
 - At the end of the session, leave the repository docs ready for the next chat, with one clear next action.
 
-Current status: M0 and M1 are complete. M2 is PARTIAL: Cloudflare confirms the TMDB_API_READ_ACCESS_TOKEN secret binding exists, and the user confirms live movie/series tiles now render; remaining search/detail/attribution/error-path checks are pending. M3 is IN PROGRESS: a versioned static manifest, v1 schema, rights-cleared publisher guide, /api/media/manifest and /api/media/resolve endpoints are deployed. The manifest is intentionally empty; no actual film or series has been made playable yet.
+Current status (reinspected 2026-11-08): M0 and M1 are complete. M2 is PARTIAL: the active v0.3.0 Worker version retains the TMDB_API_READ_ACCESS_TOKEN secret binding and the user confirms live movie/series tiles render; search/detail/genre/attribution/upstream-error acceptance checks remain pending. M3 is IN PROGRESS: a versioned static manifest, v1 schema, rights-cleared publisher guide, /api/media/manifest and /api/media/resolve endpoints are deployed. Cloudflare confirms 100% traffic on the latest version and the secret binding is present on that version. Public endpoint behavior was not independently verified in the latest inspection. The manifest is intentionally empty; no actual film or series has been made playable yet.
 
 Your first task in a new chat: read the docs, inspect the repository and latest Cloudflare deployment, then continue from docs/ROADMAP.md. The next product input is one genuinely rights-cleared VOD title with its TMDB type/ID, IPFS CID/path, media type/duration and public HTTPS rights evidence. Do not invent a CID, assume TMDB grants rights, or make arbitrary titles playable. The user prefers dashboard-only workflows and no terminals. Preserve the TMDB_API_READ_ACCESS_TOKEN secret binding on every Worker version upload by inheriting the existing binding; never ask the user to paste the token into chat.

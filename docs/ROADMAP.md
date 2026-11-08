@@ -1,7 +1,7 @@
 # gogoiTV — Milestone Roadmap
 
 **Status key:** DONE = exit criteria met; IN PROGRESS = active work; PARTIAL = implementation exists but an earlier phase's criteria remain; NEXT = upcoming; TODO = not started; BLOCKED = required external input missing.  
-**Last updated:** 2026-11-07
+**Last updated:** 2026-11-08
 
 ## Milestone overview
 
@@ -70,7 +70,7 @@ Locked decisions:
 
 ## M2 — TMDB catalogue and discovery
 
-**Status: PARTIAL — 2026-11-07**
+**Status: PARTIAL — 2026-11-08 (reinspection; acceptance tests remain open)**
 
 ### Implemented in the first M2 delivery batch
 - Added Worker API routes for trending, popular movies/TV, multi-search, movie/TV details with credits/videos, genre lists and genre discovery.
@@ -81,6 +81,9 @@ Locked decisions:
 - Deployed Worker code version 0.2.1; the TMDB API Read Access Token is now configured as a Worker secret and the user confirms live movie/series tiles render.
 
 ### Evidence and remaining work
+
+**2026-11-08 reinspection:** the current `main` source still contains all six catalogue route handlers. Cloudflare confirms the active v0.3.0 Worker version retains `TMDB_API_READ_ACCESS_TOKEN` as a `secret_text` binding. Public HTTP requests could not be independently retrieved through the available inspection path in this session, so no endpoint runtime test is counted as a pass or failure.
+
 - The user configured `TMDB_API_READ_ACCESS_TOKEN` as a Cloudflare Secret and confirms the homepage now displays movie and series tiles.
 - The code continues to keep the token in the Worker environment; it is not embedded in the frontend.
 - Search, title details, genre/discovery and upstream error behaviour still need a complete browser test pass.
@@ -97,7 +100,7 @@ Locked decisions:
 
 ## M3 — Rights-cleared content and IPFS catalogue
 
-**Status: IN PROGRESS — 2026-11-07 (manifest/resolver foundation deployed; awaiting first authorised asset)**
+**Status: IN PROGRESS — 2026-11-08 (manifest/resolver foundation active; awaiting first authorised asset and public endpoint verification)**
 
 ### Implemented in this pass
 - Added a separate, versioned static manifest module at `src/media-manifest.js` (currently empty; no media is fabricated).
