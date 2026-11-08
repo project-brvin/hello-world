@@ -33,6 +33,12 @@ This document describes the v1 publishing path. gogoiTV is a hybrid decentralise
 - The CC BY 3.0 legal code grants worldwide distribution/public-performance rights, but attribution and licence-link conditions still apply. Include the Blender Foundation credit and link to the licence; do not use excluded Blender/Creative Commons logos or imply endorsement.
 - The public rights evidence URL to use in the eventual manifest is `https://peach.blender.org/about/`; the licence link is `https://creativecommons.org/licenses/by/3.0/`.
 
+### Current gateway probe — 2026-11-09
+
+- A headless Cloudflare Browser Rendering request to the candidate `ipfs.io` URL received origin HTTP 403 and a Cloudflare “Just a moment…” challenge page, not an HLS playlist. This is a bot/challenge response to the inspection browser, **not evidence that the CID is absent or broken**.
+- A follow-up request through `dweb.link` was blocked by HTTP 429 from the Cloudflare Browser Rendering inspection API itself. No origin status was obtained for that gateway.
+- No gateway retrieval pass is claimed. Test both gateway URLs in a normal browser and inspect the playlist plus every referenced segment.
+
 ### Required checks before publishing
 
 1. Open the candidate playlist through at least two independent gateways, for example:

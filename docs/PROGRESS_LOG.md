@@ -254,3 +254,12 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - Verify the Big Buck Bunny candidate playlist and every referenced segment through two independent gateways, confirm the full credits roll and exact duration, and select a dashboard-managed pinning provider with documented retention. Keep the manifest empty until those conditions are satisfied. In parallel, finish the remaining M2 search/details/error and attribution browser checks.
+
+
+### 2026-11-09 — First candidate IPFS gateway probe
+
+- Requested the candidate HLS master playlist from `https://ipfs.io/ipfs/QmdpAidwAsBGptFB3b6A9Pyi5coEbgjHrL3K2Qrsutmj9K/master.m3u8` using Cloudflare Browser Rendering. The gateway returned origin HTTP 403 with a Cloudflare “Just a moment…” challenge page to the headless inspector; no playlist body was received.
+- A subsequent `dweb.link` attempt was blocked by HTTP 429 from the Cloudflare Browser Rendering inspection API, so no target-gateway status was obtained.
+- Classification: candidate gateway retrieval remains UNVERIFIED. The 403 is a bot challenge to the inspection browser, not proof that the CID is absent; the 429 is an inspection-tool limit, not a gogoiTV or IPFS failure.
+- No HLS playlist/segment content was inspected, no duration was measured, and no pinning provider was identified. The manifest remains empty.
+- Next action: open the two gateway URLs in a normal browser and confirm the playlist and every referenced segment load; then verify the complete-film/credits condition and arrange project-controlled pinning with recorded retention details.

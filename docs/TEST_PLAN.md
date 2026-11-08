@@ -30,6 +30,7 @@ Record browser/device, date, test asset, network profile and result for importan
 - `GET /api/media/resolve?type=bad&id=x`: origin HTTP 400; JSON `code: "INVALID_PARAMS"` (expected validation response).
 - User independently confirmed the health, media-manifest and unmapped-movie resolver pages show the required JSON. This is user-confirmed evidence; HTTP statuses for the manifest and unmapped resolver were not captured by this run.
 - Several other browser-rendering requests returned HTTP 429 from the **Cloudflare Browser Rendering inspection API**, not from gogoiTV. These are classified as probe-tool rate limits, not application failures. Search, details, TV genres, discovery and selected negative tests remain NOT VERIFIED.
+- The Big Buck Bunny candidate playlist request to `ipfs.io` received origin HTTP 403 with a Cloudflare challenge page in the headless inspection browser; no HLS playlist body was received. This is not evidence that the CID is absent. The `dweb.link` attempt was blocked by HTTP 429 from the Browser Rendering inspection API before an origin response.
 - The current homepage source includes TMDB's non-endorsement attribution and official logo URL. The rendered UI/logo load still needs visual review.
 
 ## M1 — Foundation
@@ -69,7 +70,7 @@ Record browser/device, date, test asset, network profile and result for importan
 | Invalid resolver parameters | HTTP 400 with INVALID_PARAMS | PASS — origin HTTP 400 with `INVALID_PARAMS` for `type=bad&id=x` |
 | Rights/CID/path validation | Invalid, expired, duplicate or non-worldwide records are excluded | Implemented; requires fixture-based runtime tests |
 | Real authorised content | At least one TMDB mapping resolves to a real pinned CID/path | BLOCKED — Big Buck Bunny is a rights-cleared candidate (TMDB movie 10378; CC BY 3.0) but its candidate IPFS rendition, full credits and pinning responsibility are not yet verified |
-| Multi-gateway retrieval | Same asset is retrievable through two independent gateways | BLOCKED — candidate CID identified, but direct gateway retrieval and segment availability have not yet been verified |
+| Multi-gateway retrieval | Same asset is retrievable through two independent gateways | BLOCKED — `ipfs.io` returned a headless-browser challenge (403); `dweb.link` was not reached due to inspection API 429. Neither result proves CID absence; test from a normal browser and verify segment paths |
 
 ## M4 — Player
 
