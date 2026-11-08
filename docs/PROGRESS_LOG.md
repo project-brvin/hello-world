@@ -287,3 +287,33 @@ This is the factual work journal. Record implementation and verification separat
 
 **Next action**
 - User downloads the official 720p source, converts it to H.264 MP4 with a GUI encoder, uploads a folder containing `video.mp4` to an operator-controlled IPFS pinning dashboard, and provides the returned folder CID plus exact file duration/size. Then verify two gateways before changing the manifest.
+
+
+### 2026-11-09 — Architecture pivot: Chrome-first browser P2P
+
+**User goal clarified**
+- The intended experience is that anyone can watch directly in Chrome while authorised media pieces are supplied by participating computers; the project operator should not have to manually upload every film.
+- Confirmed that Chrome-only playback without a native torrent application or extension is the required UX.
+
+**Architecture decision locked**
+- Added `docs/P2P_ARCHITECTURE.md` and ADR-014.
+- Browser WebTorrent over WebRTC is now the primary P2P playback target.
+- IPFS remains an additional content-addressed transport, not the only delivery path.
+- A transport-neutral, static, rights-gated source registry replaces the IPFS-only manifest direction.
+- Cloudflare Worker remains control plane only; no video-byte proxy, app database or mandatory account.
+- Peer sharing must be opt-in, visible and stoppable; explain peer IP visibility.
+- Only rights-cleared sources are allowed. No public-torrent scraping, arbitrary magnet ingestion or unauthorised copies.
+
+**Important limitations documented**
+- Chrome browser peers require WebRTC-compatible WebTorrent peers or a deliberate bridge; ordinary BitTorrent TCP/µTP peers do not directly connect to browser JavaScript.
+- Tracker/signalling is a required external dependency for peer discovery; trackers do not host video.
+- A swarm with no compatible online peer cannot stream. Browser seeding is best-effort while the page is open.
+- First P2P slice targets progressive MP4; HLS/ABR over P2P is deferred pending research and device tests.
+
+**Code/deployment status**
+- Documentation only. No application source, Worker configuration, secrets, manifest or Cloudflare deployment changed.
+- The old IPFS manifest remains empty. The previously rejected empty Big Buck Bunny demo CID remains retired.
+- No torrent hash, tracker endpoint or playable title has been invented or added.
+
+**Next action**
+- Implement a controlled, rights-cleared WebTorrent MP4 test swarm and a Chrome player vertical slice. Verify two independent Chrome sessions on different networks before integrating a transport-neutral source registry into production.
