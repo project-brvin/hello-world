@@ -83,3 +83,26 @@ Current status (reinspected 2026-11-09): M0 and M1 are complete. M2 is PARTIAL: 
 Candidate update (2026-11-09): the user opened both the old `ipfs.io` and `dweb.link` HLS candidate links and each downloaded an empty file. Retire that CID; do not ask the user to retry it. The next publishing path is documented in `docs/CONTENT_PUBLISHING.md`: convert Blender's official 720p H.264 MOV to an MP4 in a GUI, upload a folder containing `video.mp4` to Pinata, then verify the fresh CID/path via two gateways.
 
 Your first task in a new chat: read the docs, inspect the repository and latest Cloudflare deployment, then continue from docs/ROADMAP.md. The next action is to prepare and upload the official Blender 720p H.264 MP4 as a folder to Pinata's dashboard, then verify the returned new CID/path, full credits, duration and Range support through two gateways. Keep the active manifest empty until this evidence is recorded; do not use the rejected demo CID. The user prefers dashboard-only workflows and no terminals. Preserve the TMDB_API_READ_ACCESS_TOKEN secret binding on every Worker version upload by inheriting the existing binding; never ask the user to paste the token into chat.
+
+
+## Latest architecture pivot — 2026-11-09
+
+The user clarified the core goal: viewers should watch directly in Chrome while compatible internet peers provide pieces; the operator should not manually upload every film. The target architecture is now Chrome-first browser P2P.
+
+Read [P2P_ARCHITECTURE.md](P2P_ARCHITECTURE.md), ADR-014 and the replacement M3-M10 roadmap before coding. WebTorrent/WebRTC is the primary P2P prototype; IPFS remains an additional transport. Browser WebTorrent peers require WebRTC compatibility—ordinary BitTorrent TCP/µTP peers cannot connect directly. Tracker/signalling and live compatible peers are required. No peer means no stream. Sharing must be opt-in, visible and stoppable. Only rights-cleared sources are allowed. No arbitrary torrent scraping or magnet ingestion.
+
+No code or deployment changed in the architecture pivot. Current deployed app still has no P2P playback. Current IPFS manifest remains empty and rejected demo CID remains retired. Pinata upload is not the immediate next task.
+
+### Copy/paste prompt for a new chat
+
+Continue my **gogoiTV** project from GitHub: https://github.com/project-brvin/hello-world
+
+First read `docs/README.md`, `docs/PROJECT_CHARTER.md`, `docs/ROADMAP.md`, `docs/ARCHITECTURE_DECISIONS.md`, `docs/P2P_ARCHITECTURE.md`, `docs/TEST_PLAN.md` and `docs/SESSION_HANDOFF.md`. Inspect the actual main branch and current Cloudflare Worker before changing anything.
+
+**Goal:** anyone can watch directly in ordinary Chrome without a torrent app, extension or installation. Build browser P2P playback so I do not manually upload every film.
+
+**Locked architecture:** WebTorrent over WebRTC is the primary P2P playback target; compatible browser peers supply pieces progressively. IPFS and explicitly approved HTTPS are additional registered transports/fallbacks. Cloudflare Worker is control-plane only, no video proxy. No application database or mandatory account initially. Static transport-neutral source registry with rights evidence. Sharing is opt-in, transparent and stoppable. Only public-domain, creator-owned or properly licensed distribution sources; no arbitrary torrent scraping, magnet discovery or piracy indexing. Ordinary BitTorrent TCP/µTP peers are not directly browser-compatible; browser peers require WebRTC-compatible peers or a deliberate bridge. No compatible peer means no P2P stream.
+
+**Next task:** implement a controlled, rights-cleared WebTorrent MP4 test swarm and minimal Chrome player. Verify two independent Chrome sessions on different networks, progressive playback before full download, seeking, peer disconnect/recovery, and Android Chrome behaviour. Then implement the transport-neutral source registry. Do not deploy unverified sources or claim P2P is implemented before tests pass.
+
+Keep docs updated after every meaningful batch: roadmap, progress log, architecture decisions, test plan and handoff. Never expose secrets; preserve the existing TMDB Worker secret binding. I prefer dashboard-only workflows and no terminal commands where possible. Report exactly what changed and what was verified.
