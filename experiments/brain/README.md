@@ -64,3 +64,12 @@ BRɅIN vendors the 14,481-vertex `brain_vertex_low.obj` point dataset, the four 
 The adapted concepts correspond to the prototype's `neuralnet.js`, `axon.js`, `neuron.js`, `signal.js`, and `particlePool.js`. The old Three.js r71 runtime is deliberately not bundled because it depends on APIs removed from modern Three.js and still requires WebGL.
 
 Attributions and license: `vendor/neural-network-prototype/NOTICE.md` and `vendor/neural-network-prototype/LICENSE`.
+
+
+## Faithful prototype-style default interface
+
+The default route at `/` now follows the supplied Neural Network Prototype page structure instead of the previously invented BRɅIN hero/HUD: a full-window `#111113` neural canvas, a compact Stats-style readout at top-left, and a right-side dark `Info` / `Settings` panel styled after the prototype's dat.GUI layout.
+
+The port uses the prototype's settings defaults and controls: 3,000 maximum signals, signal size 0.6, signal speed 1.75–3.25, neuron size multiplier 1.0, neuron opacity 0.75, axon opacity multiplier 0.5, white signal/neuron/axon colors, and `#111113` background. Its graph uses the source OBJ vertices, every-second-vertex sampling on desktop / every-fourth on mobile, a 10-unit connection radius, six connections per neuron, cubic Bézier axons, and pooled travelling signals. The GUI remains collapsible on narrow touch screens.
+
+The old BRɅIN-themed God’s Eye HUD and previous custom experience are no longer the default route. The legacy WebGL experiment remains separately available at `/3d`.
