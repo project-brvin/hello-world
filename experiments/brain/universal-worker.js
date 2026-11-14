@@ -32,7 +32,10 @@ export default {
         renderer: "Canvas 2D",
         webglRequired: false,
         touchControls: true,
-        version: "1.1.0"
+        version: "1.2.0",
+        referenceModel: "Neural-Network-Prototype/brain_vertex_low.obj",
+        sourceVertices: 14481,
+        neuralGraph: "spatial proximity graph; up to 6 axons per neuron"
       }, { headers: { "cache-control": "no-store" } });
     }
     if (url.pathname === "/styles.css") return response(STYLES, "text/css; charset=utf-8", request, "no-cache");
