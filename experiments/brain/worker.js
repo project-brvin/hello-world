@@ -11,9 +11,10 @@ const securityHeaders = {
   "cache-control": "public, max-age=300, stale-while-revalidate=3600"
 };
 
-function asset(body, contentType, request) {
+function asset(body, contentType, request, cacheControl) {
   const headers = new Headers(securityHeaders);
   headers.set("content-type", contentType);
+  if (cacheControl) headers.set("cache-control", cacheControl);
   return new Response(request.method === "HEAD" ? null : body, { headers });
 }
 
@@ -29,11 +30,11 @@ export default {
       });
     }
     if (url.pathname === "/styles.css") return asset(STYLES, "text/css; charset=utf-8", request);
-    if (url.pathname === "/experience.js") return asset(EXPERIENCE, "application/javascript; charset=utf-8", request);
-    if (url.pathname === "/fallback.js") return asset(FALLBACK, "application/javascript; charset=utf-8", request);
+    if (url.pathname === "/experience.js") return asset(EXPERIENCE, "application/javascript; charset=utf-8", request, "no-cache");
+    if (url.pathname === "/fallback.js") return asset(FALLBACK, "application/javascript; charset=utf-8", request, "no-cache");
     if (url.pathname === "/favicon.ico") return new Response(null, { status: 204 });
     if (url.pathname === "/" || url.pathname === "/index.html") {
-      return asset(PAGE, "text/html; charset=utf-8", request);
+      return asset(PAGE, "text/html; charset=utf-8", request, "no-cache");
     }
     return new Response("Not found", { status: 404, headers: { "cache-control": "no-store" } });
   }
