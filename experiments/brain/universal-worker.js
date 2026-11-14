@@ -34,7 +34,9 @@ export default {
         renderer: "Canvas 2D",
         webglRequired: false,
         touchControls: true,
-        version: "1.2.0",
+        version: "1.3.0",
+        interface: "prototype-faithful",
+        controls: ["dat.GUI", "Stats.js"],
         referenceModel: "Neural-Network-Prototype/brain_vertex_low.obj",
         sourceVertices: 14481,
         neuralGraph: "spatial proximity graph; up to 6 axons per neuron"
