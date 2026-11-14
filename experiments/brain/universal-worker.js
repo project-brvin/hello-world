@@ -4,6 +4,8 @@ import { EXPERIENCE } from "./experience.js";
 import { STYLES } from "./styles.js";
 import { FALLBACK } from "./fallback.js";
 import { BRAIN_MODEL_OBJ } from "./vendor/neural-network-prototype/neural-model.js";
+import { DAT_GUI } from "./vendor/neural-network-prototype/dat-gui.js";
+import { STATS_JS } from "./vendor/neural-network-prototype/stats.js";
 
 const headers = {
   "x-content-type-options": "nosniff",
@@ -39,6 +41,8 @@ export default {
       }, { headers: { "cache-control": "no-store" } });
     }
     if (url.pathname === "/styles.css") return response(STYLES, "text/css; charset=utf-8", request, "no-cache");
+    if (url.pathname === "/dat.gui.js") return response(DAT_GUI, "application/javascript; charset=utf-8", request, "public, max-age=86400, immutable");
+    if (url.pathname === "/stats.js") return response(STATS_JS, "application/javascript; charset=utf-8", request, "public, max-age=86400, immutable");
     if (url.pathname === "/fallback.js") return response(FALLBACK, "application/javascript; charset=utf-8", request, "no-cache");
     if (url.pathname === "/brain-model.obj") return response(BRAIN_MODEL_OBJ, "text/plain; charset=utf-8", request, "public, max-age=86400, immutable");
     if (url.pathname === "/experience.js") return response(EXPERIENCE, "application/javascript; charset=utf-8", request, "no-cache");
