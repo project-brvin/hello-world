@@ -48,3 +48,10 @@ Preview: https://brain-universal-preview.projectbrvin.workers.dev
 ## Always-visible artwork layer
 
 The universal preview now includes an independent inline SVG cortical illustration above the Canvas layer. It remains visible if the Canvas animation loop stalls or is interrupted, and scales gently with the macro / connectome / synapse HUD depth. The SVG is self-contained and does not use an image request or WebGL.
+
+
+## God's Eye-inspired universal scene
+
+The Canvas-only default renderer is now a continuously animated projected mesh rather than a static SVG brain. It builds both hemispheres from a folded parametric surface, depth-sorts the cortical triangles, and applies perspective projection with a slowly orbiting camera. Concentric scanner rings, a rotating sweep, coordinate grid, moving connectome paths, micro-neuron points and action-potential pulses provide the cinematic tracking-system visual language. Drag to orbit, scroll or pinch to descend, and click / Stimulate to send a pulse.
+
+This is a software-projected 3D visualization rendered on Canvas 2D for compatibility; it is not a physically based volumetric medical model.
