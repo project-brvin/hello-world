@@ -1,4 +1,6 @@
 import { UNIVERSAL_PAGE } from "./universal-page.js";
+import { PAGE } from "./page.js";
+import { EXPERIENCE } from "./experience.js";
 import { STYLES } from "./styles.js";
 import { FALLBACK } from "./fallback.js";
 
@@ -34,6 +36,8 @@ export default {
     }
     if (url.pathname === "/styles.css") return response(STYLES, "text/css; charset=utf-8", request, "no-cache");
     if (url.pathname === "/fallback.js") return response(FALLBACK, "application/javascript; charset=utf-8", request, "no-cache");
+    if (url.pathname === "/experience.js") return response(EXPERIENCE, "application/javascript; charset=utf-8", request, "no-cache");
+    if (url.pathname === "/3d") return response(PAGE, "text/html; charset=utf-8", request, "no-store");
     if (url.pathname === "/" || url.pathname === "/index.html") {
       return response(UNIVERSAL_PAGE, "text/html; charset=utf-8", request, "no-store");
     }
