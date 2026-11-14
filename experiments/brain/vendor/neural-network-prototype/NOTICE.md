@@ -14,3 +14,6 @@ The original project bundles Three.js revision 71 and uses legacy APIs such as `
 The original repository and upstream repository both include the MIT License. The license text is preserved in `LICENSE`. The four original shader files are retained alongside this notice for provenance/reference; BRɅIN's compatibility renderer ports their visual intent rather than loading the old shaders.
 
 Original model file: `models/brain_vertex_low.obj` in Neural-Network-Prototype.
+
+
+The original `js/vendor/dat.gui.min.js` and `js/vendor/stats.min.js` UI libraries are also included and served locally for the prototype-style Info/Settings panel and performance display. Their source headers and copyright notices are retained in the vendored modules.
