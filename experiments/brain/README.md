@@ -43,3 +43,8 @@ Compatibility-only preview (Canvas 2D; bypasses WebGL): https://brain-entity-pre
 A second independent Worker, `brain-universal-preview`, serves the Canvas 2D experience as the default renderer. It intentionally does not import Three.js, request WebGL/WebGPU, or show the WebGL error state. It supports touch drag, pinch zoom, tap stimulation, and responsive HUD rendering.
 
 Preview: https://brain-universal-preview.projectbrvin.workers.dev
+
+
+## Always-visible artwork layer
+
+The universal preview now includes an independent inline SVG cortical illustration above the Canvas layer. It remains visible if the Canvas animation loop stalls or is interrupted, and scales gently with the macro / connectome / synapse HUD depth. The SVG is self-contained and does not use an image request or WebGL.
