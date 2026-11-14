@@ -36,3 +36,10 @@ This is an artistic, simulated visualization — not a medical or anatomically v
 The page first attempts the full Three.js WebGL 2 experience. On smaller or lower-memory devices it lowers the pixel ratio, removes the depth-of-field post-process and reduces the number of procedural neural instances. If WebGL 2 is unavailable, the Three.js CDN import fails, or the graphics context is lost, the page switches to a local Canvas 2D renderer with drag rotation, wheel/pinch zoom, hover-region labels, and tap-to-stimulate effects. No GPU renderer is required for the compatibility scene.
 
 Compatibility-only preview (Canvas 2D; bypasses WebGL): https://brain-entity-preview.projectbrvin.workers.dev/?compat=1
+
+
+## Universal phone-safe preview
+
+A second independent Worker, `brain-universal-preview`, serves the Canvas 2D experience as the default renderer. It intentionally does not import Three.js, request WebGL/WebGPU, or show the WebGL error state. It supports touch drag, pinch zoom, tap stimulation, and responsive HUD rendering.
+
+Preview: https://brain-universal-preview.projectbrvin.workers.dev
