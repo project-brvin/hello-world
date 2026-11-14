@@ -3,6 +3,7 @@ import { PAGE } from "./page.js";
 import { EXPERIENCE } from "./experience.js";
 import { STYLES } from "./styles.js";
 import { FALLBACK } from "./fallback.js";
+import { BRAIN_MODEL_OBJ } from "./vendor/neural-network-prototype/neural-model.js";
 
 const headers = {
   "x-content-type-options": "nosniff",
@@ -36,6 +37,7 @@ export default {
     }
     if (url.pathname === "/styles.css") return response(STYLES, "text/css; charset=utf-8", request, "no-cache");
     if (url.pathname === "/fallback.js") return response(FALLBACK, "application/javascript; charset=utf-8", request, "no-cache");
+    if (url.pathname === "/brain-model.obj") return response(BRAIN_MODEL_OBJ, "text/plain; charset=utf-8", request, "public, max-age=86400, immutable");
     if (url.pathname === "/experience.js") return response(EXPERIENCE, "application/javascript; charset=utf-8", request, "no-cache");
     if (url.pathname === "/3d") return response(PAGE, "text/html; charset=utf-8", request, "no-store");
     if (url.pathname === "/" || url.pathname === "/index.html") {
