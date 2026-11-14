@@ -1,6 +1,7 @@
 import { PAGE } from "./page.js";
 import { STYLES } from "./styles.js";
 import { EXPERIENCE } from "./experience.js";
+import { FALLBACK } from "./fallback.js";
 
 const securityHeaders = {
   "x-content-type-options": "nosniff",
@@ -29,6 +30,7 @@ export default {
     }
     if (url.pathname === "/styles.css") return asset(STYLES, "text/css; charset=utf-8", request);
     if (url.pathname === "/experience.js") return asset(EXPERIENCE, "application/javascript; charset=utf-8", request);
+    if (url.pathname === "/fallback.js") return asset(FALLBACK, "application/javascript; charset=utf-8", request);
     if (url.pathname === "/favicon.ico") return new Response(null, { status: 204 });
     if (url.pathname === "/" || url.pathname === "/index.html") {
       return asset(PAGE, "text/html; charset=utf-8", request);
