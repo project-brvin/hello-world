@@ -55,3 +55,12 @@ The universal preview now includes an independent inline SVG cortical illustrati
 The Canvas-only default renderer is now a continuously animated projected mesh rather than a static SVG brain. It builds both hemispheres from a folded parametric surface, depth-sorts the cortical triangles, and applies perspective projection with a slowly orbiting camera. Concentric scanner rings, a rotating sweep, coordinate grid, moving connectome paths, micro-neuron points and action-potential pulses provide the cinematic tracking-system visual language. Drag to orbit, scroll or pinch to descend, and click / Stimulate to send a pulse.
 
 This is a software-projected 3D visualization rendered on Canvas 2D for compatibility; it is not a physically based volumetric medical model.
+
+
+## Neural-Network-Prototype integration
+
+BRɅIN vendors the 14,481-vertex `brain_vertex_low.obj` point dataset, the four source shader files, and the MIT license/attribution in `vendor/neural-network-prototype/`. The default renderer loads those source vertices as neural-node locations, samples them more lightly on phones, builds a spatially indexed proximity graph (up to six axon connections per neuron), and animates Bézier action potentials across connected nodes with cascade firing and connection-strength feedback.
+
+The adapted concepts correspond to the prototype's `neuralnet.js`, `axon.js`, `neuron.js`, `signal.js`, and `particlePool.js`. The old Three.js r71 runtime is deliberately not bundled because it depends on APIs removed from modern Three.js and still requires WebGL.
+
+Attributions and license: `vendor/neural-network-prototype/NOTICE.md` and `vendor/neural-network-prototype/LICENSE`.
