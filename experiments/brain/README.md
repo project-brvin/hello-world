@@ -29,3 +29,8 @@ Health check: https://brain-entity-preview.projectbrvin.workers.dev/health
 Uses Three.js `0.187.0` via a pinned jsDelivr ESM import. The neural structures are procedural and generated in the browser; no anatomical model or external 3D asset is downloaded. Neuron somas and processes use `InstancedMesh` and LOD-style distance fades.
 
 This is an artistic, simulated visualization — not a medical or anatomically validated model. Neural firing, neurotransmitter particles, plasticity and cognitive-state labels are visual effects, not neuroscience-grade simulation.
+
+
+## Compatibility and mobile rendering
+
+The page first attempts the full Three.js WebGL 2 experience. On smaller or lower-memory devices it lowers the pixel ratio, removes the depth-of-field post-process and reduces the number of procedural neural instances. If WebGL 2 is unavailable, the Three.js CDN import fails, or the graphics context is lost, the page switches to a local Canvas 2D renderer with drag rotation, wheel/pinch zoom, hover-region labels, and tap-to-stimulate effects. No GPU renderer is required for the compatibility scene.
